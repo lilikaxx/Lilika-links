@@ -15,10 +15,9 @@
   .produto-info h2 { color:#ff3399; margin-top:0; }
   .produto-info p { font-size:1.1em; line-height:1.5; }
   .preco { font-size:1.8em; color:#ff3399; margin:20px 0; }
-  .botoes { display:flex; gap:15px; flex-wrap:wrap; }
+  .botoes { display:flex; gap:15px; flex-wrap:wrap; margin-bottom:10px; }
   .btn { background-color:#ff66b2; color:white; border:none; padding:15px 25px; font-size:1.1em; border-radius:10px; cursor:pointer; text-decoration:none; transition:0.3s; }
   .btn:hover { background-color:#ff3399; }
-  footer { text-align:center; padding:20px; color:#ff3399; }
   .qr-code { margin-top:20px; text-align:center; }
 </style>
 </head>
@@ -39,8 +38,9 @@
       <div class="botoes">
         <a href="https://api.whatsapp.com/send?phone=SEUNUMERO&text=Quero+comprar+este+acess%C3%B3rio" class="btn">Comprar via WhatsApp</a>
         <button class="btn" onclick="document.getElementById('qr').style.display='block'">Pagar com Pix</button>
+        <button class="btn" onclick="copyPix()">Copiar Pix</button>
       </div>
-      <div id="qr" class="qr-code" style="display:none;">
+      <div id="qr" class="qr-code" style="display:block;">
         <p>Escaneie o QR Code para pagar:</p>
         <img src="https://api.qrserver.com/v1/create-qr-code/?data=00020126580014BR.GOV.BCB.PIX0114SEU-CELULAR5204000053039865405500.005802BR5925Enzzio%20Gabriel6009Manaus62070503***6304ABCD&size=200x200" alt="QR Code Pix">
       </div>
@@ -51,6 +51,17 @@
 <footer>
   <p>Formas de pagamento: Pix ou dinheiro. Garantia de produto feito à mão com amor 💖</p>
 </footer>
+
+<script>
+  function copyPix() {
+    const pix = "28431707291"; // substitua pelo seu código Pix
+    navigator.clipboard.writeText(pix).then(() => {
+      alert("Pix copiado com sucesso! Agora é só colar no pagamento.");
+    }).catch(err => {
+      alert("Erro ao copiar Pix, tente manualmente.");
+    });
+  }
+</script>
 
 </body>
 </html>
