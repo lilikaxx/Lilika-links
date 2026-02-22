@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loja de Acessórios Artesanais</title>
+<style>
+  body { font-family: Arial, sans-serif; background-color: #ffe6f0; margin:0; padding:0; }
+  header { background-color: #ff99cc; color: white; text-align:center; padding:40px 20px; }
+  header h1 { margin:0; font-size:2.5em; }
+  .container { max-width: 900px; margin:20px auto; padding:20px; background-color:#fff0f5; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
+  .produto { display:flex; flex-wrap:wrap; gap:20px; align-items:center; }
+  .produto img { max-width:300px; border-radius:10px; }
+  .produto-info { flex:1; }
+  .produto-info h2 { color:#ff3399; margin-top:0; }
+  .produto-info p { font-size:1.1em; line-height:1.5; }
+  .preco { font-size:1.8em; color:#ff3399; margin:20px 0; }
+  .botoes { display:flex; gap:15px; flex-wrap:wrap; }
+  .btn { background-color:#ff66b2; color:white; border:none; padding:15px 25px; font-size:1.1em; border-radius:10px; cursor:pointer; text-decoration:none; transition:0.3s; }
+  .btn:hover { background-color:#ff3399; }
+  footer { text-align:center; padding:20px; color:#ff3399; }
+  .qr-code { margin-top:20px; text-align:center; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Acessórios Artesanais da Enzzio</h1>
+  <p>Feitos à mão, com carinho e estilo único!</p>
+</header>
+
+<div class="container">
+  <div class="produto">
+    <img src="https://via.placeholder.com/300x300.png?text=Seu+Acessório" alt="Acessório Artesanal">
+    <div class="produto-info">
+      <h2>Acessório Exclusivo</h2>
+      <p>Cada peça é feita por mim, com detalhes únicos e de qualidade impecável. Transforme seu look com um toque artesanal e exclusivo!</p>
+      <div class="preco">R$ 50,00</div>
+      <div class="botoes">
+        <a href="https://api.whatsapp.com/send?phone=SEUNUMERO&text=Quero+comprar+este+acess%C3%B3rio" class="btn">Comprar via WhatsApp</a>
+        <button class="btn" onclick="document.getElementById('qr').style.display='block'">Pagar com Pix</button>
+      </div>
+      <div id="qr" class="qr-code" style="display:none;">
+        <p>Escaneie o QR Code para pagar:</p>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?data=00020126580014BR.GOV.BCB.PIX0114SEU-CELULAR5204000053039865405500.005802BR5925Enzzio%20Gabriel6009Manaus62070503***6304ABCD&size=200x200" alt="QR Code Pix">
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Formas de pagamento: Pix ou dinheiro. Garantia de produto feito à mão com amor 💖</p>
+</footer>
+
+</body>
+</html>
