@@ -1,67 +1,201 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+DOCTYPE html>
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loja de Acessórios Artesanais</title>
+<title>Loja @gabrielxx</title>
 <style>
-  body { font-family: Arial, sans-serif; background-color: #ffe6f0; margin:0; padding:0; }
-  header { background-color: #ff99cc; color: white; text-align:center; padding:40px 20px; }
-  header h1 { margin:0; font-size:2.5em; }
-  .container { max-width: 900px; margin:20px auto; padding:20px; background-color:#fff0f5; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
-  .produto { display:flex; flex-wrap:wrap; gap:20px; align-items:center; }
-  .produto img { max-width:300px; border-radius:10px; }
-  .produto-info { flex:1; }
-  .produto-info h2 { color:#ff3399; margin-top:0; }
-  .produto-info p { font-size:1.1em; line-height:1.5; }
-  .preco { font-size:1.8em; color:#ff3399; margin:20px 0; }
-  .botoes { display:flex; gap:15px; flex-wrap:wrap; margin-bottom:10px; }
-  .btn { background-color:#ff66b2; color:white; border:none; padding:15px 25px; font-size:1.1em; border-radius:10px; cursor:pointer; text-decoration:none; transition:0.3s; }
-  .btn:hover { background-color:#ff3399; }
-  .qr-code { margin-top:20px; text-align:center; }
+body{
+    margin:0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#ffc0cb,#ffb6c1,#ff69b4);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    text-align:center;
+    padding:20px;
+}
+@keyframes gradient{
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+.container{
+    max-width:400px;
+    margin:auto;
+    background:#fff0f5;
+    padding:30px;
+    border-radius:25px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.3);
+    position:relative;
+    overflow:hidden;
+}
+.logo{
+    font-size:28px;
+    font-weight:bold;
+    color:#ff1493;
+    margin-bottom:15px;
+    text-shadow:2px 2px 5px #ffb6c1;
+    animation:piscar 2s infinite;
+}
+@keyframes piscar{
+    0%,100%{opacity:1;}
+    50%{opacity:0.6;}
+}
+h2,h3{color:#ff1493;}
+input{
+    width:90%;
+    padding:12px;
+    margin:8px auto;
+    border-radius:20px;
+    border:2px solid #ff69b4;
+    font-size:15px;
+    display:block;
+}
+button{
+    width:95%;
+    padding:12px;
+    margin-top:10px;
+    border-radius:25px;
+    border:none;
+    font-weight:bold;
+    font-size:16px;
+    background:white;
+    color:#ff1493;
+    cursor:pointer;
+    transition:0.3s;
+    box-shadow:0 5px 10px rgba(0,0,0,0.2);
+}
+button:hover{
+    background:#ff69b4;
+    color:white;
+    transform:translateY(-2px);
+}
+.hidden{display:none;}
+.fade{animation:fade 0.5s ease-in-out;}
+@keyframes fade{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+.erro{color:red;font-size:14px;}
+.qr{width:200px;margin:10px auto;}
+.total-box{background:white;padding:10px;border-radius:15px;margin-top:10px;color:#ff1493;font-weight:bold;}
+.confete{position:fixed;width:10px;height:10px;background:#ff69b4;top:-10px;left:50%;animation:caida 3s linear infinite;border-radius:50%;z-index:9999;}
+@keyframes caida{0%{top:-10px;transform:translateX(0) rotate(0deg);}100%{top:110%;transform:translateX(100px) rotate(360deg);}}
 </style>
 </head>
 <body>
-
-<header>
-  <h1>Acessórios Artesanais da Enzzio</h1>
-  <p>Feitos à mão, com carinho e estilo único!</p>
-</header>
-
 <div class="container">
-  <div class="produto">
-    <img src="https://via.placeholder.com/300x300.png?text=Seu+Acessório" alt="Acessório Artesanal">
-    <div class="produto-info">
-      <h2>Acessório Exclusivo</h2>
-      <p>Cada peça é feita por mim, com detalhes únicos e de qualidade impecável. Transforme seu look com um toque artesanal e exclusivo!</p>
-      <div class="preco">R$ 50,00</div>
-      <div class="botoes">
-        <a href="https://api.whatsapp.com/send?phone=SEUNUMERO&text=Quero+comprar+este+acess%C3%B3rio" class="btn">Comprar via WhatsApp</a>
-        <button class="btn" onclick="document.getElementById('qr').style.display='block'">Pagar com Pix</button>
-        <button class="btn" onclick="copyPix()">Copiar Pix</button>
-      </div>
-      <div id="qr" class="qr-code" style="display:block;">
-        <p>Escaneie o QR Code para pagar:</p>
-        <img src="https://api.qrserver.com/v1/create-qr-code/?data=00020126580014BR.GOV.BCB.PIX0114SEU-CELULAR5204000053039865405500.005802BR5925Enzzio%20Gabriel6009Manaus62070503***6304ABCD&size=200x200" alt="QR Code Pix">
-      </div>
-    </div>
-  </div>
+<div class="logo">@gabrielxx</div>
+<h2>💖 Finalizar Compra 💖</h2>
+
+<!-- ETAPA 1 -->
+<div id="etapa1" class="fade">
+<input type="text" id="telefone" placeholder="📞 Seu número (somente números)">
+<input type="email" id="email" placeholder="📧 Seu email">
+<p id="erro" class="erro"></p>
+<button onclick="validar()">Prosseguir</button>
 </div>
 
-<footer>
-  <p>Formas de pagamento: Pix ou dinheiro. Garantia de produto feito à mão com amor 💖</p>
-</footer>
+<!-- ETAPA 2 -->
+<div id="etapa2" class="hidden fade">
+<h3>💳 Forma de Pagamento</h3>
+<button onclick="mostrarPix()">Pix 💕</button>
+</div>
+
+<!-- ETAPA 3 -->
+<div id="etapa3" class="hidden fade">
+<h3>💳 Pagamento via Pix</h3>
+<p><strong>Chave Pix:</strong> 28431707291</p>
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=28431707291" class="qr">
+<div class="total-box">Produto: R$50,00</div>
+<button onclick="irEndereco()">Já paguei</button>
+</div>
+
+<!-- ETAPA 4 -->
+<div id="etapa4" class="hidden fade">
+<h3>🏠 Endereço de Entrega</h3>
+<input type="text" id="cep" placeholder="Digite seu CEP">
+<button onclick="calcularFrete()">Calcular Frete</button>
+<p id="freteErro" class="erro"></p>
+</div>
+
+<!-- ETAPA 5 -->
+<div id="etapa5" class="hidden fade">
+<h3 id="frete"></h3>
+<div id="totalFinal" class="total-box"></div>
+<button onclick="finalizar()">Finalizar 💗</button>
+</div>
+
+<!-- ETAPA 6 -->
+<div id="etapa6" class="hidden fade">
+<h2>🎉 Obrigada pela sua compra 🎀</h2>
+<button onclick="mensagem()">Me mandar mensagem 💌</button>
+</div>
+</div>
 
 <script>
-  function copyPix() {
-    const pix = "28431707291"; // substitua pelo seu código Pix
-    navigator.clipboard.writeText(pix).then(() => {
-      alert("Pix copiado com sucesso! Agora é só colar no pagamento.");
-    }).catch(err => {
-      alert("Erro ao copiar Pix, tente manualmente.");
-    });
-  }
-</script>
+let valorProduto = 50;
+let valorFrete = 0;
 
+// Valores de frete por estado (simulado)
+const fretePorEstado = {
+    "AC":15,"AL":10,"AM":12,"AP":15,"BA":10,"CE":10,"DF":8,"ES":9,"GO":9,"MA":10,
+    "MG":12,"MS":10,"MT":10,"PA":14,"PB":10,"PE":10,"PI":10,"PR":12,"RJ":12,
+    "RN":10,"RO":15,"RR":15,"RS":12,"SC":12,"SE":10,"SP":12,"TO":14
+};
+
+const cepParaEstado = {
+    "690":"AM","691":"AM","010":"SP","011":"SP","200":"RJ","700":"DF"
+    // Complete com mais faixas se quiser
+};
+
+function validar(){
+    let telefone=document.getElementById("telefone").value;
+    let email=document.getElementById("email").value;
+    let erro=document.getElementById("erro");
+    let telefoneValido=/^[0-9]{10,15}$/.test(telefone);
+    let emailValido=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if(!telefoneValido){erro.innerText="Digite um número válido (10-15 dígitos)."; return;}
+    if(!emailValido){erro.innerText="Digite um email válido."; return;}
+    erro.innerText="";
+    mostrar("etapa2");
+}
+function mostrar(id){
+    document.querySelectorAll(".container > div").forEach(div=>{div.classList.add("hidden");});
+    document.getElementById(id).classList.remove("hidden");
+}
+function mostrarPix(){mostrar("etapa3");}
+function irEndereco(){mostrar("etapa4");}
+function calcularFrete(){
+    let cep=document.getElementById("cep").value;
+    let estado=cepParaEstado[cep.substring(0,3)];
+    if(!estado){document.getElementById("freteErro").innerText="CEP inválido ou sem tabela."; return;}
+    valorFrete=fretePorEstado[estado];
+    document.getElementById("freteErro").innerText="";
+    document.getElementById("frete").innerText="Frete estimado: R$"+valorFrete+",00 ("+estado+")";
+    document.getElementById("totalFinal").innerText="Total: R$"+(valorProduto+valorFrete)+",00";
+    mostrar("etapa5");
+}
+function finalizar(){
+    mostrar("etapa6");
+    criarConfete(50);
+    tocarSom();
+}
+function mensagem(){
+    window.open("https://wa.me/5592984905651?text=Minha compra foi finalizada com sucesso 💖","_blank");
+}
+function criarConfete(quantidade){
+    for(let i=0;i<quantidade;i++){
+        let confete=document.createElement("div");
+        confete.className="confete";
+        confete.style.left=Math.random()*100+"%";
+        confete.style.backgroundColor=["#ff69b4","#ff1493","#ffb6c1","#ffc0cb"][Math.floor(Math.random()*4)];
+        confete.style.animationDuration=(2+Math.random()*2)+"s";
+        document.body.appendChild(confete);
+        setTimeout(()=>{confete.remove();},4000);
+    }
+}
+function tocarSom(){
+    let audio=new Audio("https://www.soundjay.com/button/beep-07.mp3");
+    audio.play();
+}
+</script>
 </body>
 </html>
