@@ -7,6 +7,7 @@
 <title>Loja Rosa ULTRA</title>
 
 <style>
+
 body{
 margin:0;
 font-family:'Segoe UI',sans-serif;
@@ -15,14 +16,17 @@ color:white;
 text-align:center;
 transition:0.4s;
 }
+
 body.dark{
 background:linear-gradient(135deg,#111,#333);
 }
+
 header{
 padding:20px;
 font-size:26px;
 font-weight:bold;
 }
+
 .container{
 display:flex;
 flex-wrap:wrap;
@@ -30,6 +34,7 @@ justify-content:center;
 gap:20px;
 padding:20px;
 }
+
 .card{
 background:rgba(255,255,255,0.15);
 backdrop-filter:blur(10px);
@@ -37,6 +42,7 @@ padding:20px;
 border-radius:20px;
 width:250px;
 }
+
 .botao{
 background:white;
 color:#ff1493;
@@ -47,6 +53,7 @@ cursor:pointer;
 margin-top:10px;
 font-weight:bold;
 }
+
 input,select{
 width:90%;
 padding:8px;
@@ -54,6 +61,7 @@ border-radius:10px;
 border:none;
 margin-top:10px;
 }
+
 .carrinho{
 background:white;
 color:#ff1493;
@@ -62,6 +70,7 @@ margin:20px auto;
 border-radius:20px;
 max-width:400px;
 }
+
 .admin-btn{
 position:fixed;
 left:10px;
@@ -75,6 +84,7 @@ height:45px;
 cursor:pointer;
 z-index:999;
 }
+
 .admin-panel{
 position:fixed;
 left:-100%;
@@ -89,9 +99,11 @@ transition:0.4s;
 overflow:auto;
 z-index:998;
 }
+
 .admin-panel.active{
 left:0;
 }
+
 .etapa{
 display:none;
 background:white;
@@ -101,6 +113,7 @@ border-radius:20px;
 max-width:400px;
 margin:20px auto;
 }
+
 </style>
 </head>
 
@@ -113,15 +126,21 @@ margin:20px auto;
 <h3>Painel ADM</h3>
 
 <div id="loginArea">
+
 <input type="password" id="adminKey" placeholder="Digite a Key">
+
 <button class="botao" onclick="verificarKey()">Entrar</button>
+
 <p id="erroKey"></p>
+
 </div>
 
 <div id="adminArea" style="display:none;">
+
 <button class="botao" onclick="toggleTheme()">Tema escuro</button>
 
 <h4>Produtos</h4>
+
 <div id="listaProdutos"></div>
 
 <input id="novoProdutoNome" placeholder="Nome">
@@ -131,6 +150,7 @@ margin:20px auto;
 <button class="botao" onclick="criarProduto()">Criar Produto</button>
 
 <h4>Cupons</h4>
+
 <div id="listaCupons"></div>
 
 <input id="novoCupom" placeholder="Cupom">
@@ -146,12 +166,17 @@ margin:20px auto;
 <button class="botao" onclick="addCupom()">Criar Cupom</button>
 
 <h4>Financeiro</h4>
+
 <p>Total vendas: <span id="totalVendas">0</span></p>
 <p>Total faturado: R$ <span id="valorTotalVendido">0.00</span></p>
 
 <h4>Ferramentas</h4>
+
 <button class="botao" onclick="resetarVendas()">Resetar vendas</button>
 <button class="botao" onclick="limparCupons()">Limpar cupons</button>
+<button class="botao" onclick="exportarDados()">Exportar dados</button>
+<button class="botao" onclick="exportarHistorico()">Exportar histórico vendas</button>
+
 </div>
 </div>
 
@@ -160,45 +185,86 @@ margin:20px auto;
 <div class="container" id="produtosContainer"></div>
 
 <div class="carrinho">
+
 <h2>Carrinho</h2>
+
 <div id="lista"></div>
+
 <h3>Total R$ <span id="total">0.00</span></h3>
+
+<input id="cupom" placeholder="Cupom">
+
+<button class="botao" onclick="aplicarCupom()">Aplicar</button>
+<button class="botao" onclick="abrirEtapa1()">Finalizar</button>
+
 </div>
 
-<!-- FIREBASE -->
+<div id="etapa1" class="etapa">
+
+<h3>Dados do Cliente</h3>
+
+<input id="nomeCliente" placeholder="Nome completo">
+<input id="telefoneCliente" placeholder="Telefone">
+<input id="emailCliente" placeholder="Email">
+
+<h3>Endereço</h3>
+
+<input id="cepCliente" placeholder="CEP">
+<input id="ruaCliente" placeholder="Rua">
+<input id="numeroCasaCliente" placeholder="Número">
+<input id="cidadeCliente" placeholder="Cidade">
+<input id="estadoCliente" placeholder="Estado">
+<input id="complementoCliente" placeholder="Complemento">
+
+<button class="botao" onclick="irParaPagamento()">Continuar</button>
+
+</div>
+
+<div id="etapa2" class="etapa">
+
+<h3>Pagamento PIX</h3>
+
+<h2>R$ <span id="valorFinalPagamento">0.00</span></h2>
+
+<img id="qrCodePix" width="180">
+
+<p>Chave PIX<br>28431707291</p>
+
+<button class="botao" onclick="enviarWhats()">Paguei</button>
+
+</div>
+
 <script type="module">
+
+// 🔥 FIREBASE
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const firebaseConfig = {
-apiKey: "AIzaSy...",
-authDomain: "lilika-acessorios.firebaseapp.com",
-projectId: "lilika-acessorios",
-storageBucket: "lilika-acessorios.firebasestorage.app",
-messagingSenderId: "509611122143",
-appId: "1:509611122143:web:5985305e2007398de4786a"
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_PROJETO.firebaseapp.com",
+  projectId: "SEU_PROJETO",
+  storageBucket: "SEU_PROJETO.appspot.com",
+  messagingSenderId: "XXXX",
+  appId: "XXXX"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ================= VARIÁVEIS =================
-let produtos=[]
+// ================= SEU CÓDIGO (MESMO) =================
+
 let total=0
 let itens=[]
+let descontoAplicado=0
 
-// ================= FUNÇÕES =================
+let produtos=[]
+let cupons={}
+let totalVendas=0
+let valorTotalVendido=0
+let historicoVendas=[]
 
-window.toggleAdmin = ()=> adminPanel.classList.toggle("active")
-
-window.verificarKey = ()=>{
-if(adminKey.value==="HG-HOWBX0"){
-loginArea.style.display="none"
-adminArea.style.display="block"
-carregarProdutos()
-}
-}
-
+// 🔥 CARREGAR DADOS DO FIREBASE
 async function carregarProdutos(){
 produtos=[]
 const snap = await getDocs(collection(db,"produtos"))
@@ -208,24 +274,62 @@ produtos.push({id:doc.id,...doc.data()})
 listarProdutos()
 }
 
-window.listarProdutos = ()=>{
+// ================= FUNÇÕES ORIGINAIS =================
+
+window.toggleAdmin=function(){
+adminPanel.classList.toggle("active")
+}
+
+window.verificarKey=function(){
+
+let key=adminKey.value
+
+if(key==="HG-HOWBX0" || key==="HG-HWIBZ0"){
+
+loginArea.style.display="none"
+adminArea.style.display="block"
+
+listarProdutos()
+listarCupons()
+atualizarStats()
+
+}else{
+erroKey.innerText="Key incorreta"
+}
+}
+
+window.toggleTheme=function(){
+document.body.classList.toggle("dark")
+}
+
+window.listarProdutos=function(){
+
 produtosContainer.innerHTML=""
 listaProdutos.innerHTML=""
 
 produtos.forEach((p,i)=>{
+
 produtosContainer.innerHTML+=`
 <div class="card">
 <h3>${p.nome}</h3>
-<p>R$ ${p.preco}</p>
+<p>R$ ${p.preco.toFixed(2)}</p>
 <p>Estoque ${p.estoque}</p>
 <button class="botao" onclick="addProdutoCarrinho(${i})">Adicionar</button>
 </div>
 `
-listaProdutos.innerHTML+=`${p.nome} <button onclick="removerProduto(${i})">X</button><br>`
+
+listaProdutos.innerHTML+=`
+<div>
+${p.nome} - R$ ${p.preco} | Estoque ${p.estoque}
+<button class="botao" onclick="removerProduto(${i})">Remover</button>
+</div>
+`
+
 })
 }
 
-window.criarProduto = async ()=>{
+window.criarProduto=async function(){
+
 let nome=novoProdutoNome.value
 let preco=parseFloat(novoProdutoPreco.value)
 let estoque=parseInt(novoProdutoEstoque.value)
@@ -237,28 +341,111 @@ await addDoc(collection(db,"produtos"),{nome,preco,estoque})
 carregarProdutos()
 }
 
-window.removerProduto = async (i)=>{
+window.removerProduto=async function(i){
+
+if(confirm("Remover produto?")){
 await deleteDoc(doc(db,"produtos",produtos[i].id))
 carregarProdutos()
 }
+}
 
-window.addProdutoCarrinho = async (i)=>{
+window.addProdutoCarrinho=async function(i){
+
 let p=produtos[i]
+
 if(p.estoque<=0)return alert("Sem estoque")
 
 p.estoque--
 
-await updateDoc(doc(db,"produtos",p.id),{estoque:p.estoque})
+await updateDoc(doc(db,"produtos",p.id),{
+estoque:p.estoque
+})
 
 total+=p.preco
 itens.push(p.nome)
 
-document.getElementById("total").innerText=total.toFixed(2)
-document.getElementById("lista").innerText=itens.join(", ")
-
-carregarProdutos()
+listarProdutos()
+atualizar()
 }
 
+window.atualizar=function(){
+document.getElementById("total").innerText=(total-descontoAplicado).toFixed(2)
+document.getElementById("lista").innerText=itens.join(", ")
+}
+
+// ================= CUPONS (CONTINUA LOCAL) =================
+
+window.addCupom=function(){
+let nome=novoCupom.value
+let valor=parseFloat(valorCupom.value)
+let tipo=tipoCupom.value
+let limite=parseInt(limiteCupom.value)||1
+
+cupons[nome]={valor,tipo,usado:0,limite}
+listarCupons()
+}
+
+window.listarCupons=function(){
+listaCupons.innerHTML=""
+for(let c in cupons){
+let cup=cupons[c]
+listaCupons.innerHTML+=`${c} - ${cup.usado}/${cup.limite}<br>`
+}
+}
+
+window.aplicarCupom=function(){
+let codigo=cupom.value
+let cup=cupons[codigo]
+
+if(!cup)return
+
+if(cup.tipo==="percent"){
+descontoAplicado=total*(cup.valor/100)
+}else{
+descontoAplicado=cup.valor
+}
+
+cup.usado++
+atualizar()
+}
+
+// ================= RESTO IGUAL =================
+
+window.abrirEtapa1=function(){
+if(total<=0)return alert("Carrinho vazio")
+etapa1.style.display="block"
+}
+
+window.irParaPagamento=function(){
+let valor=(total-descontoAplicado).toFixed(2)
+valorFinalPagamento.innerText=valor
+qrCodePix.src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PIX 28431707291 "+valor
+etapa1.style.display="none"
+etapa2.style.display="block"
+}
+
+window.enviarWhats=function(){
+
+let valor=(total-descontoAplicado).toFixed(2)
+
+let nome=nomeCliente.value
+let telefone=telefoneCliente.value
+let cidade=cidadeCliente.value
+
+let pedido="PED"+Date.now()
+
+let msg=`Pedido ${pedido}
+
+Cliente: ${nome}
+
+Produtos: ${itens.join(", ")}
+
+Valor: R$ ${valor}`
+
+window.location.href="https://wa.me/5592984905651?text="+encodeURIComponent(msg)
+}
+
+// 🔥 INICIAR
 carregarProdutos()
 
 </script>
