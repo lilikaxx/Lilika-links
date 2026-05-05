@@ -18,7 +18,7 @@ transition:0.4s;
 }
 
 body.dark{
-background:linear-gradient(135deg,#111,#333);
+backprodutosContainer.iground:linear-gradient(135deg,#111,#333);
 }
 
 header{
@@ -146,6 +146,8 @@ margin:20px auto;
 <input id="novoProdutoNome" placeholder="Nome">
 <input id="novoProdutoPreco" type="number" placeholder="Preço">
 <input id="novoProdutoEstoque" type="number" placeholder="Estoque">
+<input id="novoProdutoImagem" placeholder="URL da imagem">
+<input id="novoProdutoDescricao" placeholder="Descrição do produto">
 
 <button class="botao" onclick="criarProduto()">Criar Produto</button>
 
@@ -350,7 +352,6 @@ atualizar()
 }
 
 // ================= UI =================
-
 window.listarProdutos=function(){
 
 produtosContainer.innerHTML=""
@@ -360,10 +361,24 @@ produtos.forEach((p,i)=>{
 
 produtosContainer.innerHTML+=`
 <div class="card">
+
+<img src="${p.imagem || 'https://via.placeholder.com/250'}"
+style="width:100%; border-radius:15px; margin-bottom:10px;">
+
 <h3>${p.nome}</h3>
-<p>R$ ${p.preco.toFixed(2)}</p>
+
+<p>R$ ${Number(p.preco).toFixed(2)}</p>
+
+<p style="font-size:14px;">
+${p.descricao || "Sem descrição"}
+</p>
+
 <p>Estoque ${p.estoque}</p>
-<button class="botao" onclick="addProdutoCarrinho(${i})">Adicionar</button>
+
+<button class="botao" onclick="addProdutoCarrinho(${i})">
+Adicionar
+</button>
+
 </div>
 `
 
@@ -375,11 +390,7 @@ ${p.nome} - R$ ${p.preco} | Estoque ${p.estoque}
 `
 
 })
-}
 
-window.atualizar=function(){
-document.getElementById("total").innerText=(total-descontoAplicado).toFixed(2)
-document.getElementById("lista").innerText=itens.join(", ")
 }
 
 // ================= CUPONS (LOCAL MESMO) =================
