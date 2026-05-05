@@ -182,7 +182,7 @@ margin:20px auto;
 </div>
 </div>
 
-<header>✨ Loja Rosa ULTRA ✨</header>
+<header>✨ Loja Lilika acessorios ✨</header>
 
 <div class="container" id="produtosContainer"></div>
 
@@ -242,7 +242,7 @@ margin:20px auto;
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, set, get, push, remove, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// 🔥 CONFIG (A SUA)
+// 🔥 CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyBcdKZn5VIIHf23LJzoSvADshLlYhZ3IFo",
   authDomain: "lilika-acessorios.firebaseapp.com",
@@ -263,9 +263,6 @@ let descontoAplicado=0
 
 let produtos=[]
 let cupons={}
-let totalVendas=0
-let valorTotalVendido=0
-let historicoVendas=[]
 
 // ================= ADMIN =================
 window.toggleAdmin=function(){
@@ -280,7 +277,6 @@ loginArea.style.display="none"
 adminArea.style.display="block"
 carregarProdutos()
 listarCupons()
-atualizarStats()
 }else{
 erroKey.innerText="Key incorreta"
 }
@@ -307,23 +303,43 @@ produtos.push({id,...data[id]})
 listarProdutos()
 }
 
+// ================= CRIAR PRODUTO =================
 window.criarProduto = async function(){
 
-let nome=novoProdutoNome.value
-let preco=parseFloat(novoProdutoPreco.value)
-let estoque=parseInt(novoProdutoEstoque.value)
+let nome = novoProdutoNome.value.trim()
+let preco = parseFloat(novoProdutoPreco.value)
+let estoque = parseInt(novoProdutoEstoque.value)
+let imagem = novoProdutoImagem.value.trim()
+let descricao = novoProdutoDescricao.value.trim()
 
-if(!nome||!preco||!estoque)return alert("Preencha tudo")
+if(!nome || isNaN(preco) || isNaN(estoque)){
+  return alert("Preencha nome, preço e estoque")
+}
+
+if(!imagem) imagem = "https://via.placeholder.com/250"
+if(!descricao) descricao = "Sem descrição"
 
 const novoRef = push(ref(db,"produtos"))
 
 await set(novoRef,{
-nome,preco,estoque
+  nome,
+  preco,
+  estoque,
+  imagem,
+  descricao
 })
+
+// limpar inputs
+novoProdutoNome.value=""
+novoProdutoPreco.value=""
+novoProdutoEstoque.value=""
+novoProdutoImagem.value=""
+novoProdutoDescricao.value=""
 
 carregarProdutos()
 }
 
+// ================= REMOVER =================
 window.removerProduto = async function(i){
 
 if(confirm("Remover produto?")){
@@ -332,23 +348,43 @@ carregarProdutos()
 }
 }
 
+// ================= CARRINHO =================
 window.addProdutoCarrinho = async function(i){
 
-let p=produtos[i]
+let p = produtos[i]
 
-if(p.estoque<=0)return alert("Sem estoque")
+if(!p) return
+if(p.estoque <= 0) return alert("Sem estoque")
 
 p.estoque--
 
 await update(ref(db,"produtos/"+p.id),{
-estoque:p.estoque
+  estoque: p.estoque
 })
 
-total+=p.preco
+total += Number(p.preco)
 itens.push(p.nome)
 
 listarProdutos()
 atualizar()
+
+console.log("Carrinho:", itens, total)
+}
+
+// 🔥 FUNÇÃO QUE FALTAVA
+function atualizar(){
+
+let totalEl = document.getElementById("total")
+let itensEl = document.getElementById("itensCarrinho")
+
+if(totalEl){
+  totalEl.innerText = "R$ " + (total - descontoAplicado).toFixed(2)
+}
+
+if(itensEl){
+  itensEl.innerText = itens.join(", ")
+}
+
 }
 
 // ================= UI =================
@@ -362,7 +398,7 @@ produtos.forEach((p,i)=>{
 produtosContainer.innerHTML+=`
 <div class="card">
 
-<img src="${p.imagem || 'https://via.placeholder.com/250'}"
+<img src="${p.imagem}" 
 style="width:100%; border-radius:15px; margin-bottom:10px;">
 
 <h3>${p.nome}</h3>
@@ -370,7 +406,7 @@ style="width:100%; border-radius:15px; margin-bottom:10px;">
 <p>R$ ${Number(p.preco).toFixed(2)}</p>
 
 <p style="font-size:14px;">
-${p.descricao || "Sem descrição"}
+${p.descricao}
 </p>
 
 <p>Estoque ${p.estoque}</p>
@@ -393,7 +429,7 @@ ${p.nome} - R$ ${p.preco} | Estoque ${p.estoque}
 
 }
 
-// ================= CUPONS (LOCAL MESMO) =================
+// ================= CUPONS =================
 
 window.addCupom=function(){
 let nome=novoCupom.value
@@ -444,30 +480,46 @@ etapa1.style.display="none"
 etapa2.style.display="block"
 }
 
-window.enviarWhats=function(){
+window.enviarWhats = function(){
 
-let valor=(total-descontoAplicado).toFixed(2)
+let valor = (total - descontoAplicado).toFixed(2)
 
-let nome=nomeCliente.value
-let telefone=telefoneCliente.value
+let nome = nomeCliente.value
+let telefone = telefoneCliente.value
+let email = emailCliente ? emailCliente.value : "Não informado"
 
-let pedido="PED"+Date.now()
+let pedido = "PED" + Date.now()
 
-let msg=`Pedido ${pedido}
+let data = new Date().toLocaleString("pt-BR")
 
-Cliente: ${nome}
+let msg = `🛒 *NOVA COMPRA*
 
-Produtos: ${itens.join(", ")}
+📦 Pedido: ${pedido}
+📅 Data: ${data}
 
-Valor: R$ ${valor}`
+🛍 Produtos:
+${itens.join("\n")}
 
-window.location.href="https://wa.me/5592984905651?text="+encodeURIComponent(msg)
+💰 Valor: R$ ${valor}
+
+👤 Cliente: ${nome}
+📱 Telefone: ${telefone}
+📧 Email: ${email}
+
+💳 Pagamento via PIX enviado.
+
+✨ Loja Lilika acessorios ✨`
+
+window.location.href =
+"https://wa.me/5592984905651?text=" + encodeURIComponent(msg)
+
 }
 
 // ================= INIT =================
 carregarProdutos()
 
 </script>
+
 
 </body>
 </html>
