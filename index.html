@@ -3,15 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loja Rosa Oficial</title>
+
+<title>Loja Rosa ULTRA</title>
 
 <style>
+
 body{
-margin:0;;
+margin:0;
 font-family:'Segoe UI',sans-serif;
 background:linear-gradient(135deg,#ff4da6,#ff99cc);
 color:white;
 text-align:center;
+transition:0.4s;
+}
+
+body.dark{
+background:linear-gradient(135deg,#111,#333);
 }
 
 header{
@@ -47,7 +54,7 @@ margin-top:10px;
 font-weight:bold;
 }
 
-input, select{
+input,select{
 width:90%;
 padding:8px;
 border-radius:10px;
@@ -64,7 +71,6 @@ border-radius:20px;
 max-width:400px;
 }
 
-/* ADMIN */
 .admin-btn{
 position:fixed;
 left:10px;
@@ -84,30 +90,18 @@ position:fixed;
 left:-100%;
 top:0;
 width:80%;
-max-width:320px;
+max-width:400px;
 height:100%;
 background:white;
 color:#ff1493;
 padding:20px;
 transition:0.4s;
 overflow:auto;
-box-shadow:5px 0 20px rgba(0,0,0,0.3);
-border-top-right-radius:20px;
-border-bottom-right-radius:20px;
 z-index:998;
 }
 
 .admin-panel.active{
 left:0;
-}
-
-.fechar{
-background:none;
-border:none;
-font-size:22px;
-color:#ff1493;
-cursor:pointer;
-float:right;
 }
 
 .etapa{
@@ -119,196 +113,473 @@ border-radius:20px;
 max-width:400px;
 margin:20px auto;
 }
+
 </style>
 </head>
+
 <body>
 
 <button class="admin-btn" onclick="toggleAdmin()">⚙</button>
 
 <div class="admin-panel" id="adminPanel">
-<button class="fechar" onclick="toggleAdmin()">✖</button>
+
 <h3>Painel ADM</h3>
 
 <div id="loginArea">
+
 <input type="password" id="adminKey" placeholder="Digite a Key">
+
 <button class="botao" onclick="verificarKey()">Entrar</button>
+
 <p id="erroKey"></p>
+
 </div>
 
 <div id="adminArea" style="display:none;">
-<button class="botao" onclick="sairAdmin()">Sair</button>
 
-<h4>Criar Cupom</h4>
-<input type="text" id="novoCupom" placeholder="Nome do Cupom">
-<input type="number" id="valorCupom" placeholder="Valor desconto">
-<select id="tipoCupom">
-<option value="percent">Desconto %</option>
-<option value="fixo">Valor Fixo R$</option>
-</select>
-<button class="botao" onclick="addCupom()">Criar Cupom</button>
+<button class="botao" onclick="toggleTheme()">Tema escuro</button>
+
+<h4>Produtos</h4>
+
+<div id="listaProdutos"></div>
+
+<input id="novoProdutoNome" placeholder="Nome">
+<input id="novoProdutoPreco" type="number" placeholder="Preço">
+<input id="novoProdutoEstoque" type="number" placeholder="Estoque">
+
+<button class="botao" onclick="criarProduto()">Criar Produto</button>
 
 <h4>Cupons</h4>
+
 <div id="listaCupons"></div>
 
-<hr>
+<input id="novoCupom" placeholder="Cupom">
+<input id="valorCupom" type="number" placeholder="Valor">
 
-<h4>📊 Estatísticas</h4>
-<p>Total de vendas: <span id="totalVendas">0</span></p>
-<p>Valor total vendido: R$ <span id="valorTotalVendido">0.00</span></p>
+<select id="tipoCupom">
+<option value="percent">%</option>
+<option value="fixo">R$</option>
+</select>
 
-<hr>
+<input id="limiteCupom" type="number" placeholder="Limite">
 
-<h4>👥 Quem usou cupom</h4>
-<button class="botao" onclick="limparRegistros()">Limpar Registros</button>
-<div id="listaUsuariosCupons"></div>
+<button class="botao" onclick="addCupom()">Criar Cupom</button>
+
+<h4>Financeiro</h4>
+
+<p>Total vendas: <span id="totalVendas">0</span></p>
+<p>Total faturado: R$ <span id="valorTotalVendido">0.00</span></p>
+
+<h4>Ferramentas</h4>
+
+<button class="botao" onclick="resetarVendas()">Resetar vendas</button>
+<button class="botao" onclick="limparCupons()">Limpar cupons</button>
+<button class="botao" onclick="exportarDados()">Exportar dados</button>
+<button class="botao" onclick="exportarHistorico()">Exportar histórico vendas</button>
 
 </div>
 </div>
 
-<header>✨ Loja Rosa Oficial ✨</header>
+<header>✨ Loja Rosa ULTRA ✨</header>
 
-<div class="container">
-<div class="card">
-<h3>Produto 1</h3>
-<p>R$ 49.90</p>
-<button class="botao" onclick="add(49.90,'Produto 1')">Adicionar</button>
-</div>
-
-<div class="card">
-<h3>Produto 2</h3>
-<p>R$ 79.90</p>
-<button class="botao" onclick="add(79.90,'Produto 2')">Adicionar</button>
-</div>
-</div>
+<div class="container" id="produtosContainer"></div>
 
 <div class="carrinho">
-<h2>🛒 Carrinho</h2>
+
+<h2>Carrinho</h2>
+
 <div id="lista"></div>
-<h3>Total: R$ <span id="total">0.00</span></h3>
 
-<input type="text" id="cupom" placeholder="Digite seu cupom">
-<button class="botao" onclick="aplicarCupom()">Aplicar Cupom</button>
-<p id="cupomMsg"></p>
+<h3>Total R$ <span id="total">0.00</span></h3>
 
-<button class="botao" onclick="abrirEtapa1()">Finalizar Compra</button>
+<input id="cupom" placeholder="Cupom">
+
+<button class="botao" onclick="aplicarCupom()">Aplicar</button>
+<button class="botao" onclick="abrirEtapa1()">Finalizar</button>
+
 </div>
 
 <div id="etapa1" class="etapa">
-<h3>📱 Dados</h3>
-<input type="tel" id="telefoneCliente" placeholder="Telefone">
-<input type="email" id="emailCliente" placeholder="Email">
-<button class="botao" onclick="irParaPagamento()">Avançar</button>
+
+<h3>Dados do Cliente</h3>
+
+<input id="nomeCliente" placeholder="Nome completo">
+<input id="telefoneCliente" placeholder="Telefone">
+<input id="emailCliente" placeholder="Email">
+
+<h3>Endereço</h3>
+
+<input id="cepCliente" placeholder="CEP">
+<input id="ruaCliente" placeholder="Rua">
+<input id="numeroCasaCliente" placeholder="Número">
+<input id="cidadeCliente" placeholder="Cidade">
+<input id="estadoCliente" placeholder="Estado">
+<input id="complementoCliente" placeholder="Complemento">
+
+<button class="botao" onclick="irParaPagamento()">Continuar</button>
+
 </div>
 
 <div id="etapa2" class="etapa">
-<h3>💳 Pagamento PIX</h3>
+
+<h3>Pagamento PIX</h3>
+
 <h2>R$ <span id="valorFinalPagamento">0.00</span></h2>
+
 <img id="qrCodePix" width="180">
-<p><strong>Chave PIX:</strong><br>284-317-072-91</p>
-<button class="botao" onclick="enviarWhats()">Paguei ✅</button>
+
+<p>Chave PIX<br>28431707291</p>
+
+<button class="botao" onclick="enviarWhats()">Paguei</button>
+
 </div>
 
 <script>
-let total=0,itens=[],descontoAplicado=0,cupomAplicado=null;
-let cupons=JSON.parse(localStorage.getItem("cupons"))||{};
-let usuarios=JSON.parse(localStorage.getItem("usuarios"))||[];
-let totalVendas=JSON.parse(localStorage.getItem("totalVendas"))||0;
-let valorTotalVendido=JSON.parse(localStorage.getItem("valorTotalVendido"))||0;
 
-function toggleAdmin(){document.getElementById("adminPanel").classList.toggle("active");}
+let total=0
+let itens=[]
+let descontoAplicado=0
 
-function verificarKey(){
-if(document.getElementById("adminKey").value==="92973661"){
-loginArea.style.display="none"
-adminArea.style.display="block";
-listarCupons();listarUsuarios();atualizarStats();
-}else erroKey.innerText="❌ Key incorreta!";
+let produtos=JSON.parse(localStorage.getItem("produtos"))||[]
+let cupons=JSON.parse(localStorage.getItem("cupons"))||{}
+
+let totalVendas=JSON.parse(localStorage.getItem("totalVendas"))||0
+let valorTotalVendido=JSON.parse(localStorage.getItem("valorTotalVendido"))||0
+let historicoVendas=JSON.parse(localStorage.getItem("historicoVendas"))||[]
+
+function toggleAdmin(){
+adminPanel.classList.toggle("active")
 }
 
-function sairAdmin(){loginArea.style.display="block";adminArea.style.display="none";}
+function verificarKey(){
+
+let key=adminKey.value
+
+if(key==="HG-HOWBX0" || key==="HG-HWIBZ0"){
+
+loginArea.style.display="none"
+adminArea.style.display="block"
+
+listarProdutos()
+listarCupons()
+atualizarStats()
+
+}else{
+
+erroKey.innerText="Key incorreta"
+
+}
+
+}
+
+function toggleTheme(){
+document.body.classList.toggle("dark")
+}
+
+function listarProdutos(){
+
+produtosContainer.innerHTML=""
+listaProdutos.innerHTML=""
+
+produtos.forEach((p,i)=>{
+
+produtosContainer.innerHTML+=`
+<div class="card">
+<h3>${p.nome}</h3>
+<p>R$ ${p.preco.toFixed(2)}</p>
+<p>Estoque ${p.estoque}</p>
+<button class="botao" onclick="addProdutoCarrinho(${i})">Adicionar</button>
+</div>
+`
+
+listaProdutos.innerHTML+=`
+<div>
+${p.nome} - R$ ${p.preco} | Estoque ${p.estoque}
+<button class="botao" onclick="removerProduto(${i})">Remover</button>
+</div>
+`
+
+})
+
+}
+
+function criarProduto(){
+
+let nome=novoProdutoNome.value
+let preco=parseFloat(novoProdutoPreco.value)
+let estoque=parseInt(novoProdutoEstoque.value)
+
+if(!nome||!preco||!estoque)return
+
+produtos.push({nome,preco,estoque})
+
+localStorage.setItem("produtos",JSON.stringify(produtos))
+
+listarProdutos()
+
+}
+
+function removerProduto(i){
+
+if(confirm("Remover produto?")){
+
+produtos.splice(i,1)
+
+localStorage.setItem("produtos",JSON.stringify(produtos))
+
+listarProdutos()
+
+}
+
+}
+
+function addProdutoCarrinho(i){
+
+let p=produtos[i]
+
+if(p.estoque<=0)return alert("Sem estoque")
+
+p.estoque--
+
+total+=p.preco
+
+itens.push(p.nome)
+
+localStorage.setItem("produtos",JSON.stringify(produtos))
+
+listarProdutos()
+
+atualizar()
+
+}
+
+function atualizar(){
+
+document.getElementById("total").innerText=(total-descontoAplicado).toFixed(2)
+document.getElementById("lista").innerText=itens.join(", ")
+
+}
 
 function addCupom(){
-let nome=novoCupom.value.trim();
-let valor=parseFloat(valorCupom.value);
-let tipo=tipoCupom.value;
-if(!nome||!valor)return;
-cupons[nome]={valor,tipo,usado:false};
-localStorage.setItem("cupons",JSON.stringify(cupons));
-listarCupons();
+
+let nome=novoCupom.value
+let valor=parseFloat(valorCupom.value)
+let tipo=tipoCupom.value
+let limite=parseInt(limiteCupom.value)||1
+
+cupons[nome]={valor,tipo,usado:0,limite}
+
+localStorage.setItem("cupons",JSON.stringify(cupons))
+
+listarCupons()
+
 }
 
 function listarCupons(){
-listaCupons.innerHTML="";
+
+listaCupons.innerHTML=""
+
 for(let c in cupons){
-listaCupons.innerHTML+=`🎟 ${c} - ${cupons[c].usado?"❌":"✅"}<br>`;
-}
+
+let cup=cupons[c]
+
+listaCupons.innerHTML+=`${c} - ${cup.usado}/${cup.limite}<br>`
+
 }
 
-function add(valor,nome){total+=valor;itens.push(nome);atualizar();}
-
-function atualizar(){totalSpan=(total-descontoAplicado).toFixed(2);document.getElementById("total").innerText=totalSpan;lista.innerText=itens.join(", ");}
+}
 
 function aplicarCupom(){
-let codigo=cupom.value.trim();
-if(cupons[codigo]&&!cupons[codigo].usado){
-descontoAplicado=cupons[codigo].tipo==="percent"?total*(cupons[codigo].valor/100):cupons[codigo].valor;
-cupons[codigo].usado=true;
-cupomAplicado=codigo;
-localStorage.setItem("cupons",JSON.stringify(cupons));
-atualizar();
-cupomMsg.innerText="✅ Cupom aplicado!";
-}else cupomMsg.innerText="❌ Cupom inválido ou já usado!";
+
+let codigo=cupom.value
+let cup=cupons[codigo]
+
+if(!cup)return
+
+if(cup.tipo==="percent"){
+descontoAplicado=total*(cup.valor/100)
+}else{
+descontoAplicado=cup.valor
 }
 
-function abrirEtapa1(){if(total<=0)return alert("Adicione produtos!");etapa1.style.display="block";}
+cup.usado++
+
+localStorage.setItem("cupons",JSON.stringify(cupons))
+
+atualizar()
+
+}
+
+function abrirEtapa1(){
+
+if(total<=0)return alert("Carrinho vazio")
+
+etapa1.style.display="block"
+
+}
 
 function irParaPagamento(){
-let tel=telefoneCliente.value.trim();
-let email=emailCliente.value.trim();
-if(!tel||!email)return alert("Preencha os dados!");
-let valor=(total-descontoAplicado).toFixed(2);
-valorFinalPagamento.innerText=valor;
-qrCodePix.src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PIX 284-317-072-91 VALOR "+valor;
-etapa1.style.display="none";etapa2.style.display="block";
+
+let valor=(total-descontoAplicado).toFixed(2)
+
+valorFinalPagamento.innerText=valor
+
+qrCodePix.src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PIX 28431707291 "+valor
+
+etapa1.style.display="none"
+etapa2.style.display="block"
+
 }
 
 function enviarWhats(){
-let tel=telefoneCliente.value.trim();
-let email=emailCliente.value.trim();
-let valor=(total-descontoAplicado).toFixed(2);
 
-if(cupomAplicado){
-usuarios.push({tel,email,cupom:cupomAplicado,data:new Date().toLocaleString()});
-localStorage.setItem("usuarios",JSON.stringify(usuarios));
+let valor=(total-descontoAplicado).toFixed(2)
+
+let nome=nomeCliente.value
+let telefone=telefoneCliente.value
+let email=emailCliente.value
+
+let cidade=cidadeCliente.value
+
+let pedido="PED"+Date.now()
+let data=new Date().toLocaleString("pt-BR")
+
+let venda={
+pedido,
+data,
+nome,
+telefone,
+cidade,
+produtos:itens.join(", "),
+valor
 }
 
-totalVendas++;valorTotalVendido+=parseFloat(valor);
-localStorage.setItem("totalVendas",totalVendas);
-localStorage.setItem("valorTotalVendido",valorTotalVendido);
+historicoVendas.push(venda)
 
-let msg=`Nova compra!\nProdutos: ${itens.join(", ")}\nValor: R$ ${valor}\nTelefone: ${tel}\nEmail: ${email}\nCupom: ${cupomAplicado||"Nenhum"}`;
-window.location.href="https://wa.me/5592984905651?text="+encodeURIComponent(msg);
-}
+localStorage.setItem("historicoVendas",JSON.stringify(historicoVendas))
 
-function listarUsuarios(){
-listaUsuariosCupons.innerHTML="";
-usuarios.forEach(u=>{
-listaUsuariosCupons.innerHTML+=`📞 ${u.tel}<br>📧 ${u.email}<br>🎟 ${u.cupom}<br>📅 ${u.data}<hr>`;
-});
+totalVendas++
+valorTotalVendido+=parseFloat(valor)
+
+localStorage.setItem("totalVendas",totalVendas)
+localStorage.setItem("valorTotalVendido",valorTotalVendido)
+
+let msg=`Pedido ${pedido}
+
+Cliente: ${nome}
+
+Produtos: ${itens.join(", ")}
+
+Valor: R$ ${valor}`
+
+window.location.href="https://wa.me/5592984905651?text="+encodeURIComponent(msg)
+
 }
 
 function atualizarStats(){
-totalVendasSpan=document.getElementById("totalVendas");
-valorTotalSpan=document.getElementById("valorTotalVendido");
-totalVendasSpan.innerText=totalVendas;
-valorTotalSpan.innerText=valorTotalVendido.toFixed(2);
+
+document.getElementById("totalVendas").innerText=totalVendas
+document.getElementById("valorTotalVendido").innerText=valorTotalVendido.toFixed(2)
+
 }
 
-function limparRegistros(){
-usuarios=[];
-localStorage.removeItem("usuarios");
-listarUsuarios();
+function resetarVendas(){
+
+if(confirm("Resetar vendas?")){
+
+totalVendas=0
+valorTotalVendido=0
+
+localStorage.setItem("totalVendas",0)
+localStorage.setItem("valorTotalVendido",0)
+
+atualizarStats()
+
 }
+
+}
+
+function limparCupons(){
+
+cupons={}
+
+localStorage.setItem("cupons",JSON.stringify(cupons))
+
+listarCupons()
+
+}
+
+function exportarDados(){
+
+let dados={
+produtos,
+cupons,
+totalVendas,
+valorTotalVendido
+}
+
+let blob=new Blob([JSON.stringify(dados,null,2)],{type:"application/json"})
+
+let a=document.createElement("a")
+
+a.href=URL.createObjectURL(blob)
+a.download="dados_loja.json"
+a.click()
+
+}
+
+function exportarHistorico(){
+
+if(historicoVendas.length===0){
+alert("Nenhuma venda registrada")
+return
+}
+
+let tabela=`
+<table border="1">
+<tr>
+<th>Pedido</th>
+<th>Data</th>
+<th>Cliente</th>
+<th>Telefone</th>
+<th>Cidade</th>
+<th>Produtos</th>
+<th>Valor</th>
+</tr>
+`
+
+historicoVendas.forEach(v=>{
+
+tabela+=`
+<tr>
+<td>${v.pedido}</td>
+<td>${v.data}</td>
+<td>${v.nome}</td>
+<td>${v.telefone}</td>
+<td>${v.cidade}</td>
+<td>${v.produtos}</td>
+<td>${v.valor}</td>
+</tr>
+`
+
+})
+
+tabela+="</table>"
+
+let blob=new Blob([tabela],{type:"application/vnd.ms-excel"})
+
+let a=document.createElement("a")
+
+a.href=URL.createObjectURL(blob)
+
+a.download="historico_vendas.xls"
+
+a.click()
+
+}
+
+listarProdutos()
+
 </script>
 
 </body>
