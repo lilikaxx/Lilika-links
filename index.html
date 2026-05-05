@@ -13,15 +13,66 @@ background:linear-gradient(135deg,#ff4da6,#ff99cc);
 color:white;
 text-align:center;
 }
-header{padding:20px;font-size:26px;font-weight:bold;}
-.container{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;padding:20px;}
-.card{background:rgba(255,255,255,0.15);padding:20px;border-radius:20px;width:250px;}
-.botao{background:white;color:#ff1493;border:none;padding:10px 18px;border-radius:25px;cursor:pointer;margin-top:10px;font-weight:bold;}
-input{width:90%;padding:8px;border-radius:10px;border:none;margin-top:10px;}
-.admin-panel{position:fixed;left:-100%;top:0;width:80%;max-width:400px;height:100%;background:white;color:#ff1493;padding:20px;transition:0.4s;overflow:auto;}
-.admin-panel.active{left:0;}
-.admin-btn{position:fixed;left:10px;top:10px;background:white;color:#ff1493;border:none;border-radius:50%;width:45px;height:45px;}
-.carrinho{background:white;color:#ff1493;padding:20px;margin:20px auto;border-radius:20px;max-width:400px;}
+
+.container{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:20px;
+padding:20px;
+}
+
+.card{
+background:rgba(255,255,255,0.15);
+padding:20px;
+border-radius:20px;
+width:250px;
+}
+
+.botao{
+background:white;
+color:#ff1493;
+border:none;
+padding:10px 18px;
+border-radius:25px;
+cursor:pointer;
+margin-top:10px;
+}
+
+.admin-panel{
+position:fixed;
+left:-100%;
+top:0;
+width:80%;
+height:100%;
+background:white;
+color:#ff1493;
+padding:20px;
+transition:0.4s;
+overflow:auto;
+}
+
+.admin-panel.active{
+left:0;
+}
+
+.admin-btn{
+position:fixed;
+top:10px;
+left:10px;
+border:none;
+border-radius:50%;
+width:45px;
+height:45px;
+}
+
+.carrinho{
+background:white;
+color:#ff1493;
+padding:20px;
+margin:20px;
+border-radius:20px;
+}
 </style>
 </head>
 
@@ -30,143 +81,154 @@ input{width:90%;padding:8px;border-radius:10px;border:none;margin-top:10px;}
 <button class="admin-btn" onclick="toggleAdmin()">⚙</button>
 
 <div class="admin-panel" id="adminPanel">
-<h3>Painel ADM</h3>
 
 <div id="loginArea">
-<input type="password" id="adminKey" placeholder="Digite a Key">
-<button class="botao" onclick="verificarKey()">Entrar</button>
+<input type="password" id="adminKey" placeholder="Key">
+<button onclick="verificarKey()">Entrar</button>
 <p id="erroKey"></p>
 </div>
 
 <div id="adminArea" style="display:none;">
-<h4>Produtos</h4>
+
+<h3>Produtos</h3>
 <div id="listaProdutos"></div>
 
 <input id="novoProdutoNome" placeholder="Nome">
 <input id="novoProdutoPreco" type="number" placeholder="Preço">
 <input id="novoProdutoEstoque" type="number" placeholder="Estoque">
 
-<button class="botao" onclick="criarProduto()">Criar Produto</button>
+<button onclick="criarProduto()">Criar Produto</button>
+
+<h3>Cupons</h3>
+<div id="listaCupons"></div>
+
+<input id="novoCupom" placeholder="Cupom">
+<input id="valorCupom" type="number" placeholder="Valor">
+<select id="tipoCupom">
+<option value="percent">%</option>
+<option value="fixo">R$</option>
+</select>
+
+<button onclick="addCupom()">Criar Cupom</button>
+
 </div>
 </div>
 
-<header>✨ Loja Rosa ULTRA ✨</header>
+<h1>Loja Rosa ULTRA</h1>
 
 <div class="container" id="produtosContainer"></div>
 
 <div class="carrinho">
 <h2>Carrinho</h2>
 <div id="lista"></div>
-<h3>Total R$ <span id="total">0.00</span></h3>
+<h3>Total: R$ <span id="total">0</span></h3>
 </div>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } 
-from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBcdKZn5VIIHf23LJzoSvADshLlYhZ3IFo",
   authDomain: "lilika-acessorios.firebaseapp.com",
+  databaseURL: "https://lilika-acessorios-default-rtdb.firebaseio.com/",
   projectId: "lilika-acessorios",
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const db = getDatabase(app);
 
 // VARIÁVEIS
-let total=0
-let itens=[]
+let produtos = []
+let cupons = {}
+let total = 0
+let itens = []
 
-// ADMIN
-window.toggleAdmin = function(){
-adminPanel.classList.toggle("active")
-}
-
-window.verificarKey = function(){
-let key=adminKey.value
-if(key==="HG-HOWBX0" || key==="HG-HWIBZ0"){
-loginArea.style.display="none"
-adminArea.style.display="block"
-listarProdutos()
-}else{
-erroKey.innerText="Key incorreta"
-}
-}
-
-// 🔥 LISTAR PRODUTOS ONLINE
-window.listarProdutos = async function(){
-
-produtosContainer.innerHTML=""
-listaProdutos.innerHTML=""
-
-const querySnapshot = await getDocs(collection(db, "produtos"))
-
-querySnapshot.forEach((docSnap) => {
-
-let p = docSnap.data()
-let id = docSnap.id
-
-produtosContainer.innerHTML += `
-<div class="card">
-<h3>${p.nome}</h3>
-<p>R$ ${p.preco}</p>
-<p>Estoque ${p.estoque}</p>
-<button class="botao" onclick="addCarrinho(${p.preco}, '${p.nome}')">Adicionar</button>
-</div>
-`
-
-listaProdutos.innerHTML += `
-<div>
-${p.nome} - R$ ${p.preco}
-<button class="botao" onclick="removerProduto('${id}')">Remover</button>
-</div>
-`
-
+// 🔥 CARREGAR DADOS
+onValue(ref(db,"produtos"), snap=>{
+produtos = snap.val() || []
+renderProdutos()
 })
 
+onValue(ref(db,"cupons"), snap=>{
+cupons = snap.val() || {}
+renderCupons()
+})
+
+// 🔐 ADMIN
+window.toggleAdmin = ()=> adminPanel.classList.toggle("active")
+
+window.verificarKey = ()=>{
+if(adminKey.value==="HG-HOWBX0"){
+loginArea.style.display="none"
+adminArea.style.display="block"
+}else{
+erroKey.innerText="Key errada"
+}
 }
 
-// 🔥 CRIAR PRODUTO (SALVA PRA TODOS)
-window.criarProduto = async function(){
-
+// 📦 PRODUTOS
+window.criarProduto = ()=>{
 let nome=novoProdutoNome.value
 let preco=parseFloat(novoProdutoPreco.value)
 let estoque=parseInt(novoProdutoEstoque.value)
 
-if(!nome||!preco||!estoque)return
+if(!nome||!preco||!estoque)return alert("Preencha tudo")
 
-await addDoc(collection(db, "produtos"), {
-nome,
-preco,
-estoque
+produtos.push({nome,preco,estoque})
+set(ref(db,"produtos"),produtos)
+}
+
+window.removerProduto = (i)=>{
+produtos.splice(i,1)
+set(ref(db,"produtos"),produtos)
+}
+
+function renderProdutos(){
+produtosContainer.innerHTML=""
+listaProdutos.innerHTML=""
+
+produtos.forEach((p,i)=>{
+produtosContainer.innerHTML+=`
+<div class="card">
+<h3>${p.nome}</h3>
+<p>R$ ${p.preco}</p>
+<p>Estoque ${p.estoque}</p>
+<button onclick="addCarrinho(${i})">Adicionar</button>
+</div>`
+
+listaProdutos.innerHTML+=`
+<div>${p.nome} 
+<button onclick="removerProduto(${i})">X</button></div>`
 })
-
-listarProdutos()
-
 }
 
-// 🔥 REMOVER PRODUTO
-window.removerProduto = async function(id){
-
-if(confirm("Remover produto?")){
-await deleteDoc(doc(db, "produtos", id))
-listarProdutos()
+// 🛒 CARRINHO
+window.addCarrinho = (i)=>{
+let p=produtos[i]
+total+=p.preco
+itens.push(p.nome)
+totalEl.innerText=total
+lista.innerText=itens.join(", ")
 }
 
+// 🎟 CUPONS
+window.addCupom = ()=>{
+let nome=novoCupom.value
+let valor=parseFloat(valorCupom.value)
+let tipo=tipoCupom.value
+
+cupons[nome]={valor,tipo}
+set(ref(db,"cupons"),cupons)
 }
 
-// CARRINHO
-window.addCarrinho = function(preco,nome){
-total+=preco
-itens.push(nome)
-document.getElementById("total").innerText=total.toFixed(2)
-document.getElementById("lista").innerText=itens.join(", ")
+function renderCupons(){
+listaCupons.innerHTML=""
+for(let c in cupons){
+listaCupons.innerHTML+=c+"<br>"
 }
-
-// INICIAR
-listarProdutos()
+}
 
 </script>
 
