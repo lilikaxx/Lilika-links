@@ -170,13 +170,6 @@ margin:20px auto;
 <p>Total vendas: <span id="totalVendas">0</span></p>
 <p>Total faturado: R$ <span id="valorTotalVendido">0.00</span></p>
 
-<h4>Ferramentas</h4>
-
-<button class="botao" onclick="resetarVendas()">Resetar vendas</button>
-<button class="botao" onclick="limparCupons()">Limpar cupons</button>
-<button class="botao" onclick="exportarDados()">Exportar dados</button>
-<button class="botao" onclick="exportarHistorico()">Exportar histórico vendas</button>
-
 </div>
 </div>
 
@@ -192,99 +185,43 @@ margin:20px auto;
 
 <h3>Total R$ <span id="total">0.00</span></h3>
 
-<input id="cupom" placeholder="Cupom">
-
-<button class="botao" onclick="aplicarCupom()">Aplicar</button>
-<button class="botao" onclick="abrirEtapa1()">Finalizar</button>
-
 </div>
 
-<div id="etapa1" class="etapa">
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-<h3>Dados do Cliente</h3>
+<script>
 
-<input id="nomeCliente" placeholder="Nome completo">
-<input id="telefoneCliente" placeholder="Telefone">
-<input id="emailCliente" placeholder="Email">
+// 🔥 CONFIG
+firebase.initializeApp({
+apiKey: "AIzaSyBcdKZn5VIIHf23LJzoSvADshLlYhZ3IFo",
+authDomain: "lilika-acessorios.firebaseapp.com",
+projectId: "lilika-acessorios"
+});
 
-<h3>Endereço</h3>
-
-<input id="cepCliente" placeholder="CEP">
-<input id="ruaCliente" placeholder="Rua">
-<input id="numeroCasaCliente" placeholder="Número">
-<input id="cidadeCliente" placeholder="Cidade">
-<input id="estadoCliente" placeholder="Estado">
-<input id="complementoCliente" placeholder="Complemento">
-
-<button class="botao" onclick="irParaPagamento()">Continuar</button>
-
-</div>
-
-<div id="etapa2" class="etapa">
-
-<h3>Pagamento PIX</h3>
-
-<h2>R$ <span id="valorFinalPagamento">0.00</span></h2>
-
-<img id="qrCodePix" width="180">
-
-<p>Chave PIX<br>28431707291</p>
-
-<button class="botao" onclick="enviarWhats()">Paguei</button>
-
-</div>
-
-<script type="module">
-
-// 🔥 FIREBASE IMPORT
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-
-// 🔥 CONFIG (A SUA)
-const firebaseConfig = {
-  apiKey: "AIzaSyBcdKZn5VIIHf23LJzoSvADshLlYhZ3IFo",
-  authDomain: "lilika-acessorios.firebaseapp.com",
-  projectId: "lilika-acessorios",
-  storageBucket: "lilika-acessorios.firebasestorage.app",
-  messagingSenderId: "509611122143",
-  appId: "1:509611122143:web:5985305e2007398de4786a"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// ================= VARIÁVEIS ORIGINAIS =================
-
-let total=0
-let itens=[]
-let descontoAplicado=0
+const db = firebase.firestore();
 
 let produtos=[]
-let cupons={}
 
-let totalVendas=0
-let valorTotalVendido=0
-let historicoVendas=[]
-
-// 🔥 CARREGAR PRODUTOS DO FIREBASE
-async function carregarProdutos(){
+// 🔥 CARREGAR
+function carregarProdutos(){
+db.collection("produtos").get().then(snap=>{
 produtos=[]
-const snap = await getDocs(collection(db,"produtos"))
-
-snap.forEach(docu=>{
-produtos.push({id:docu.id,...docu.data()})
+snap.forEach(doc=>{
+produtos.push({id:doc.id,...doc.data()})
 })
-
 listarProdutos()
+})
 }
 
-// ================= FUNÇÕES ORIGINAIS =================
+// ================= FUNÇÕES =================
 
-window.toggleAdmin=function(){
+function toggleAdmin(){
 adminPanel.classList.toggle("active")
 }
 
-window.verificarKey=function(){
+function verificarKey(){
 
 let key=adminKey.value
 
@@ -293,22 +230,18 @@ if(key==="HG-HOWBX0" || key==="HG-HWIBZ0"){
 loginArea.style.display="none"
 adminArea.style.display="block"
 
-listarProdutos()
-listarCupons()
-atualizarStats()
+carregarProdutos()
 
 }else{
-
 erroKey.innerText="Key incorreta"
-
 }
 }
 
-window.toggleTheme=function(){
+function toggleTheme(){
 document.body.classList.toggle("dark")
 }
 
-window.listarProdutos=function(){
+function listarProdutos(){
 
 produtosContainer.innerHTML=""
 listaProdutos.innerHTML=""
@@ -318,7 +251,7 @@ produtos.forEach((p,i)=>{
 produtosContainer.innerHTML+=`
 <div class="card">
 <h3>${p.nome}</h3>
-<p>R$ ${p.preco.toFixed(2)}</p>
+<p>R$ ${p.preco}</p>
 <p>Estoque ${p.estoque}</p>
 <button class="botao" onclick="addProdutoCarrinho(${i})">Adicionar</button>
 </div>
@@ -326,51 +259,48 @@ produtosContainer.innerHTML+=`
 
 listaProdutos.innerHTML+=`
 <div>
-${p.nome} - R$ ${p.preco} | Estoque ${p.estoque}
+${p.nome} - R$ ${p.preco}
 <button class="botao" onclick="removerProduto(${i})">Remover</button>
 </div>
 `
 
 })
-
 }
 
-// 🔥 CRIAR PRODUTO (AGORA FUNCIONA)
-window.criarProduto=async function(){
+// 🔥 CRIAR
+function criarProduto(){
 
 let nome=novoProdutoNome.value
 let preco=parseFloat(novoProdutoPreco.value)
 let estoque=parseInt(novoProdutoEstoque.value)
 
-if(!nome || isNaN(preco) || isNaN(estoque)) return alert("Preencha tudo")
+if(!nome || isNaN(preco) || isNaN(estoque)){
+alert("Preenche tudo direito")
+return
+}
 
-await addDoc(collection(db,"produtos"),{
-nome,
-preco,
-estoque
+db.collection("produtos").add({
+nome,preco,estoque
+}).then(()=>{
+carregarProdutos()
 })
-
-novoProdutoNome.value=""
-novoProdutoPreco.value=""
-novoProdutoEstoque.value=""
-
-await carregarProdutos()
 }
 
-// 🔥 REMOVER PRODUTO
-window.removerProduto=async function(i){
+// 🔥 REMOVER
+function removerProduto(i){
 
-if(confirm("Remover produto?")){
-
-await deleteDoc(doc(db,"produtos",produtos[i].id))
-
-await carregarProdutos()
-
+if(confirm("Remover?")){
+db.collection("produtos").doc(produtos[i].id).delete().then(()=>{
+carregarProdutos()
+})
 }
 }
 
-// 🔥 ADICIONAR AO CARRINHO
-window.addProdutoCarrinho=async function(i){
+// 🔥 CARRINHO
+let total=0
+let itens=[]
+
+function addProdutoCarrinho(i){
 
 let p=produtos[i]
 
@@ -378,7 +308,7 @@ if(p.estoque<=0)return alert("Sem estoque")
 
 p.estoque--
 
-await updateDoc(doc(db,"produtos",p.id),{
+db.collection("produtos").doc(p.id).update({
 estoque:p.estoque
 })
 
@@ -387,108 +317,14 @@ itens.push(p.nome)
 
 listarProdutos()
 atualizar()
-
 }
 
-window.atualizar=function(){
-
-document.getElementById("total").innerText=(total-descontoAplicado).toFixed(2)
+function atualizar(){
+document.getElementById("total").innerText=total.toFixed(2)
 document.getElementById("lista").innerText=itens.join(", ")
-
 }
 
-// ================= CUPONS (IGUAL) =================
-
-window.addCupom=function(){
-
-let nome=novoCupom.value
-let valor=parseFloat(valorCupom.value)
-let tipo=tipoCupom.value
-let limite=parseInt(limiteCupom.value)||1
-
-cupons[nome]={valor,tipo,usado:0,limite}
-
-listarCupons()
-
-}
-
-window.listarCupons=function(){
-
-listaCupons.innerHTML=""
-
-for(let c in cupons){
-
-let cup=cupons[c]
-
-listaCupons.innerHTML+=`${c} - ${cup.usado}/${cup.limite}<br>`
-
-}
-
-}
-
-window.aplicarCupom=function(){
-
-let codigo=cupom.value
-let cup=cupons[codigo]
-
-if(!cup)return
-
-if(cup.tipo==="percent"){
-descontoAplicado=total*(cup.valor/100)
-}else{
-descontoAplicado=cup.valor
-}
-
-cup.usado++
-
-atualizar()
-
-}
-
-// ================= RESTO IGUAL =================
-
-window.abrirEtapa1=function(){
-
-if(total<=0)return alert("Carrinho vazio")
-
-etapa1.style.display="block"
-
-}
-
-window.irParaPagamento=function(){
-
-let valor=(total-descontoAplicado).toFixed(2)
-
-valorFinalPagamento.innerText=valor
-
-qrCodePix.src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PIX 28431707291 "+valor
-
-etapa1.style.display="none"
-etapa2.style.display="block"
-
-}
-
-window.enviarWhats=function(){
-
-let valor=(total-descontoAplicado).toFixed(2)
-
-let nome=nomeCliente.value
-
-let pedido="PED"+Date.now()
-
-let msg=`Pedido ${pedido}
-
-Cliente: ${nome}
-
-Produtos: ${itens.join(", ")}
-
-Valor: R$ ${valor}`
-
-window.location.href="https://wa.me/5592984905651?text="+encodeURIComponent(msg)
-
-}
-
-// 🔥 INICIAR
+// INICIAR
 carregarProdutos()
 
 </script>
