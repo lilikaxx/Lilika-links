@@ -170,6 +170,13 @@ margin:20px auto;
 <p>Total vendas: <span id="totalVendas">0</span></p>
 <p>Total faturado: R$ <span id="valorTotalVendido">0.00</span></p>
 
+<h4>Ferramentas</h4>
+
+<button class="botao" onclick="resetarVendas()">Resetar vendas</button>
+<button class="botao" onclick="limparCupons()">Limpar cupons</button>
+<button class="botao" onclick="exportarDados()">Exportar dados</button>
+<button class="botao" onclick="exportarHistorico()">Exportar histórico vendas</button>
+
 </div>
 </div>
 
@@ -185,122 +192,145 @@ margin:20px auto;
 
 <h3>Total R$ <span id="total">0.00</span></h3>
 
+<input id="cupom" placeholder="Cupom">
+
+<button class="botao" onclick="aplicarCupom()">Aplicar</button>
+<button class="botao" onclick="abrirEtapa1()">Finalizar</button>
+
 </div>
 
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<div id="etapa1" class="etapa">
 
-<script>
+<h3>Dados do Cliente</h3>
 
-// 🔥 CONFIG
-firebase.initializeApp({
-apiKey: "AIzaSyBcdKZn5VIIHf23LJzoSvADshLlYhZ3IFo",
-authDomain: "lilika-acessorios.firebaseapp.com",
-projectId: "lilika-acessorios"
-});
+<input id="nomeCliente" placeholder="Nome completo">
+<input id="telefoneCliente" placeholder="Telefone">
+<input id="emailCliente" placeholder="Email">
 
-const db = firebase.firestore();
+<h3>Endereço</h3>
+
+<input id="cepCliente" placeholder="CEP">
+<input id="ruaCliente" placeholder="Rua">
+<input id="numeroCasaCliente" placeholder="Número">
+<input id="cidadeCliente" placeholder="Cidade">
+<input id="estadoCliente" placeholder="Estado">
+<input id="complementoCliente" placeholder="Complemento">
+
+<button class="botao" onclick="irParaPagamento()">Continuar</button>
+
+</div>
+
+<div id="etapa2" class="etapa">
+
+<h3>Pagamento PIX</h3>
+
+<h2>R$ <span id="valorFinalPagamento">0.00</span></h2>
+
+<img id="qrCodePix" width="180">
+
+<p>Chave PIX<br>28431707291</p>
+
+<button class="botao" onclick="enviarWhats()">Paguei</button>
+
+</div>
+
+<script type="module">
+
+// 🔥 IMPORTS FIREBASE
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set, get, push, remove, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+// 🔥 CONFIG (A SUA)
+const firebaseConfig = {
+  apiKey: "AIzaSyBcdKZn5VIIHf23LJzoSvADshLlYhZ3IFo",
+  authDomain: "lilika-acessorios.firebaseapp.com",
+  databaseURL: "https://lilika-acessorios-default-rtdb.firebaseio.com",
+  projectId: "lilika-acessorios",
+  storageBucket: "lilika-acessorios.appspot.com",
+  messagingSenderId: "509611122143",
+  appId: "1:509611122143:web:5985305e2007398de4786a"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ================= VARIÁVEIS =================
+let total=0
+let itens=[]
+let descontoAplicado=0
 
 let produtos=[]
+let cupons={}
+let totalVendas=0
+let valorTotalVendido=0
+let historicoVendas=[]
 
-// 🔥 CARREGAR
-function carregarProdutos(){
-db.collection("produtos").get().then(snap=>{
-produtos=[]
-snap.forEach(doc=>{
-produtos.push({id:doc.id,...doc.data()})
-})
-listarProdutos()
-})
-}
-
-// ================= FUNÇÕES =================
-
-function toggleAdmin(){
+// ================= ADMIN =================
+window.toggleAdmin=function(){
 adminPanel.classList.toggle("active")
 }
 
-function verificarKey(){
-
+window.verificarKey=function(){
 let key=adminKey.value
 
 if(key==="HG-HOWBX0" || key==="HG-HWIBZ0"){
-
 loginArea.style.display="none"
 adminArea.style.display="block"
-
 carregarProdutos()
-
+listarCupons()
+atualizarStats()
 }else{
 erroKey.innerText="Key incorreta"
 }
 }
 
-function toggleTheme(){
+window.toggleTheme=function(){
 document.body.classList.toggle("dark")
 }
 
-function listarProdutos(){
+// ================= FIREBASE PRODUTOS =================
 
-produtosContainer.innerHTML=""
-listaProdutos.innerHTML=""
+async function carregarProdutos(){
+produtos=[]
+const snapshot = await get(ref(db,"produtos"))
 
-produtos.forEach((p,i)=>{
+if(snapshot.exists()){
+let data = snapshot.val()
 
-produtosContainer.innerHTML+=`
-<div class="card">
-<h3>${p.nome}</h3>
-<p>R$ ${p.preco}</p>
-<p>Estoque ${p.estoque}</p>
-<button class="botao" onclick="addProdutoCarrinho(${i})">Adicionar</button>
-</div>
-`
-
-listaProdutos.innerHTML+=`
-<div>
-${p.nome} - R$ ${p.preco}
-<button class="botao" onclick="removerProduto(${i})">Remover</button>
-</div>
-`
-
+Object.keys(data).forEach(id=>{
+produtos.push({id,...data[id]})
 })
 }
 
-// 🔥 CRIAR
-function criarProduto(){
+listarProdutos()
+}
+
+window.criarProduto = async function(){
 
 let nome=novoProdutoNome.value
 let preco=parseFloat(novoProdutoPreco.value)
 let estoque=parseInt(novoProdutoEstoque.value)
 
-if(!nome || isNaN(preco) || isNaN(estoque)){
-alert("Preenche tudo direito")
-return
-}
+if(!nome||!preco||!estoque)return alert("Preencha tudo")
 
-db.collection("produtos").add({
+const novoRef = push(ref(db,"produtos"))
+
+await set(novoRef,{
 nome,preco,estoque
-}).then(()=>{
-carregarProdutos()
 })
-}
 
-// 🔥 REMOVER
-function removerProduto(i){
-
-if(confirm("Remover?")){
-db.collection("produtos").doc(produtos[i].id).delete().then(()=>{
 carregarProdutos()
-})
+}
+
+window.removerProduto = async function(i){
+
+if(confirm("Remover produto?")){
+await remove(ref(db,"produtos/"+produtos[i].id))
+carregarProdutos()
 }
 }
 
-// 🔥 CARRINHO
-let total=0
-let itens=[]
-
-function addProdutoCarrinho(i){
+window.addProdutoCarrinho = async function(i){
 
 let p=produtos[i]
 
@@ -308,7 +338,7 @@ if(p.estoque<=0)return alert("Sem estoque")
 
 p.estoque--
 
-db.collection("produtos").doc(p.id).update({
+await update(ref(db,"produtos/"+p.id),{
 estoque:p.estoque
 })
 
@@ -319,12 +349,111 @@ listarProdutos()
 atualizar()
 }
 
-function atualizar(){
-document.getElementById("total").innerText=total.toFixed(2)
+// ================= UI =================
+
+window.listarProdutos=function(){
+
+produtosContainer.innerHTML=""
+listaProdutos.innerHTML=""
+
+produtos.forEach((p,i)=>{
+
+produtosContainer.innerHTML+=`
+<div class="card">
+<h3>${p.nome}</h3>
+<p>R$ ${p.preco.toFixed(2)}</p>
+<p>Estoque ${p.estoque}</p>
+<button class="botao" onclick="addProdutoCarrinho(${i})">Adicionar</button>
+</div>
+`
+
+listaProdutos.innerHTML+=`
+<div>
+${p.nome} - R$ ${p.preco} | Estoque ${p.estoque}
+<button class="botao" onclick="removerProduto(${i})">Remover</button>
+</div>
+`
+
+})
+}
+
+window.atualizar=function(){
+document.getElementById("total").innerText=(total-descontoAplicado).toFixed(2)
 document.getElementById("lista").innerText=itens.join(", ")
 }
 
-// INICIAR
+// ================= CUPONS (LOCAL MESMO) =================
+
+window.addCupom=function(){
+let nome=novoCupom.value
+let valor=parseFloat(valorCupom.value)
+let tipo=tipoCupom.value
+let limite=parseInt(limiteCupom.value)||1
+
+cupons[nome]={valor,tipo,usado:0,limite}
+listarCupons()
+}
+
+window.listarCupons=function(){
+listaCupons.innerHTML=""
+for(let c in cupons){
+let cup=cupons[c]
+listaCupons.innerHTML+=`${c} - ${cup.usado}/${cup.limite}<br>`
+}
+}
+
+window.aplicarCupom=function(){
+let codigo=cupom.value
+let cup=cupons[codigo]
+
+if(!cup)return
+
+if(cup.tipo==="percent"){
+descontoAplicado=total*(cup.valor/100)
+}else{
+descontoAplicado=cup.valor
+}
+
+cup.usado++
+atualizar()
+}
+
+// ================= RESTO =================
+
+window.abrirEtapa1=function(){
+if(total<=0)return alert("Carrinho vazio")
+etapa1.style.display="block"
+}
+
+window.irParaPagamento=function(){
+let valor=(total-descontoAplicado).toFixed(2)
+valorFinalPagamento.innerText=valor
+qrCodePix.src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PIX 28431707291 "+valor
+etapa1.style.display="none"
+etapa2.style.display="block"
+}
+
+window.enviarWhats=function(){
+
+let valor=(total-descontoAplicado).toFixed(2)
+
+let nome=nomeCliente.value
+let telefone=telefoneCliente.value
+
+let pedido="PED"+Date.now()
+
+let msg=`Pedido ${pedido}
+
+Cliente: ${nome}
+
+Produtos: ${itens.join(", ")}
+
+Valor: R$ ${valor}`
+
+window.location.href="https://wa.me/5592984905651?text="+encodeURIComponent(msg)
+}
+
+// ================= INIT =================
 carregarProdutos()
 
 </script>
