@@ -3,22 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Loja Rosa ULTRA</title>
 
 <style>
-
 body{
 margin:0;
 font-family:'Segoe UI',sans-serif;
 background:linear-gradient(135deg,#ff4da6,#ff99cc);
 color:white;
 text-align:center;
-transition:0.4s;
-}
-
-body.dark{
-background:linear-gradient(135deg,#111,#333);
 }
 
 header{
@@ -37,7 +30,6 @@ padding:20px;
 
 .card{
 background:rgba(255,255,255,0.15);
-backdrop-filter:blur(10px);
 padding:20px;
 border-radius:20px;
 width:250px;
@@ -54,7 +46,7 @@ margin-top:10px;
 font-weight:bold;
 }
 
-input,select{
+input{
 width:90%;
 padding:8px;
 border-radius:10px;
@@ -70,232 +62,73 @@ margin:20px auto;
 border-radius:20px;
 max-width:400px;
 }
-
-.admin-btn{
-position:fixed;
-left:10px;
-top:10px;
-background:white;
-color:#ff1493;
-border:none;
-border-radius:50%;
-width:45px;
-height:45px;
-cursor:pointer;
-z-index:999;
-}
-
-.admin-panel{
-position:fixed;
-left:-100%;
-top:0;
-width:80%;
-max-width:400px;
-height:100%;
-background:white;
-color:#ff1493;
-padding:20px;
-transition:0.4s;
-overflow:auto;
-z-index:998;
-}
-
-.admin-panel.active{
-left:0;
-}
-
-.etapa{
-display:none;
-background:white;
-color:#ff1493;
-padding:20px;
-border-radius:20px;
-max-width:400px;
-margin:20px auto;
-}
-
 </style>
 </head>
 
 <body>
 
-<button class="admin-btn" onclick="toggleAdmin()">⚙</button>
-
-<div class="admin-panel" id="adminPanel">
-
-<h3>Painel ADM</h3>
-
-<div id="loginArea">
-
-<input type="password" id="adminKey" placeholder="Digite a Key">
-
-<button class="botao" onclick="verificarKey()">Entrar</button>
-
-<p id="erroKey"></p>
-
-</div>
-
-<div id="adminArea" style="display:none;">
-
-<button class="botao" onclick="toggleTheme()">Tema escuro</button>
-
-<h4>Produtos</h4>
-
-<div id="listaProdutos"></div>
-
-<input id="novoProdutoNome" placeholder="Nome">
-<input id="novoProdutoPreco" type="number" placeholder="Preço">
-<input id="novoProdutoEstoque" type="number" placeholder="Estoque">
-
-<button class="botao" onclick="criarProduto()">Criar Produto</button>
-
-<h4>Cupons</h4>
-
-<div id="listaCupons"></div>
-
-<input id="novoCupom" placeholder="Cupom">
-<input id="valorCupom" type="number" placeholder="Valor">
-
-<select id="tipoCupom">
-<option value="percent">%</option>
-<option value="fixo">R$</option>
-</select>
-
-<input id="limiteCupom" type="number" placeholder="Limite">
-
-<button class="botao" onclick="addCupom()">Criar Cupom</button>
-
-<h4>Financeiro</h4>
-
-<p>Total vendas: <span id="totalVendas">0</span></p>
-<p>Total faturado: R$ <span id="valorTotalVendido">0.00</span></p>
-
-<h4>Ferramentas</h4>
-
-<button class="botao" onclick="resetarVendas()">Resetar vendas</button>
-<button class="botao" onclick="limparCupons()">Limpar cupons</button>
-<button class="botao" onclick="exportarDados()">Exportar dados</button>
-<button class="botao" onclick="exportarHistorico()">Exportar histórico vendas</button>
-
-</div>
-</div>
-
 <header>✨ Loja Rosa ULTRA ✨</header>
+
+<div>
+<h3>Adicionar Produto (ADM)</h3>
+<input id="nome" placeholder="Nome">
+<input id="preco" type="number" placeholder="Preço">
+<input id="estoque" type="number" placeholder="Estoque">
+<br>
+<button class="botao" onclick="criarProduto()">Criar</button>
+</div>
 
 <div class="container" id="produtosContainer"></div>
 
 <div class="carrinho">
-
 <h2>Carrinho</h2>
-
 <div id="lista"></div>
-
 <h3>Total R$ <span id="total">0.00</span></h3>
-
-<input id="cupom" placeholder="Cupom">
-
-<button class="botao" onclick="aplicarCupom()">Aplicar</button>
-<button class="botao" onclick="abrirEtapa1()">Finalizar</button>
-
 </div>
 
-<div id="etapa1" class="etapa">
+<!-- FIREBASE -->
+<script type="module">
 
-<h3>Dados do Cliente</h3>
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } 
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-<input id="nomeCliente" placeholder="Nome completo">
-<input id="telefoneCliente" placeholder="Telefone">
-<input id="emailCliente" placeholder="Email">
+const firebaseConfig = {
+  apiKey: "AIzaSyBcdKZn5VIIHf23LJzoSvADshLlYhZ3IFo",
+  authDomain: "lilika-acessorios.firebaseapp.com",
+  projectId: "lilika-acessorios",
+  storageBucket: "lilika-acessorios.firebasestorage.app",
+  messagingSenderId: "509611122143",
+  appId: "1:509611122143:web:5985305e2007398de4786a"
+};
 
-<h3>Endereço</h3>
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-<input id="cepCliente" placeholder="CEP">
-<input id="ruaCliente" placeholder="Rua">
-<input id="numeroCasaCliente" placeholder="Número">
-<input id="cidadeCliente" placeholder="Cidade">
-<input id="estadoCliente" placeholder="Estado">
-<input id="complementoCliente" placeholder="Complemento">
+// VARIÁVEIS
+let total = 0
+let itens = []
 
-<button class="botao" onclick="irParaPagamento()">Continuar</button>
+// LISTAR PRODUTOS (ONLINE)
+async function listarProdutos(){
 
-</div>
+const container = document.getElementById("produtosContainer")
+container.innerHTML = ""
 
-<div id="etapa2" class="etapa">
+const querySnapshot = await getDocs(collection(db, "produtos"))
 
-<h3>Pagamento PIX</h3>
+querySnapshot.forEach((docSnap) => {
 
-<h2>R$ <span id="valorFinalPagamento">0.00</span></h2>
+let p = docSnap.data()
+let id = docSnap.id
 
-<img id="qrCodePix" width="180">
-
-<p>Chave PIX<br>28431707291</p>
-
-<button class="botao" onclick="enviarWhats()">Paguei</button>
-
-</div>
-
-<script>
-
-let total=0
-let itens=[]
-let descontoAplicado=0
-
-let produtos=JSON.parse(localStorage.getItem("produtos"))||[]
-let cupons=JSON.parse(localStorage.getItem("cupons"))||{}
-
-let totalVendas=JSON.parse(localStorage.getItem("totalVendas"))||0
-let valorTotalVendido=JSON.parse(localStorage.getItem("valorTotalVendido"))||0
-let historicoVendas=JSON.parse(localStorage.getItem("historicoVendas"))||[]
-
-function toggleAdmin(){
-adminPanel.classList.toggle("active")
-}
-
-function verificarKey(){
-
-let key=adminKey.value
-
-if(key==="HG-HOWBX0" || key==="HG-HWIBZ0"){
-
-loginArea.style.display="none"
-adminArea.style.display="block"
-
-listarProdutos()
-listarCupons()
-atualizarStats()
-
-}else{
-
-erroKey.innerText="Key incorreta"
-
-}
-
-}
-
-function toggleTheme(){
-document.body.classList.toggle("dark")
-}
-
-function listarProdutos(){
-
-produtosContainer.innerHTML=""
-listaProdutos.innerHTML=""
-
-produtos.forEach((p,i)=>{
-
-produtosContainer.innerHTML+=`
+container.innerHTML += `
 <div class="card">
 <h3>${p.nome}</h3>
-<p>R$ ${p.preco.toFixed(2)}</p>
+<p>R$ ${p.preco}</p>
 <p>Estoque ${p.estoque}</p>
-<button class="botao" onclick="addProdutoCarrinho(${i})">Adicionar</button>
-</div>
-`
-
-listaProdutos.innerHTML+=`
-<div>
-${p.nome} - R$ ${p.preco} | Estoque ${p.estoque}
-<button class="botao" onclick="removerProduto(${i})">Remover</button>
+<button class="botao" onclick="addCarrinho(${p.preco}, '${p.nome}')">Adicionar</button>
+<button class="botao" onclick="removerProduto('${id}')">Remover</button>
 </div>
 `
 
@@ -303,281 +136,49 @@ ${p.nome} - R$ ${p.preco} | Estoque ${p.estoque}
 
 }
 
-function criarProduto(){
+// CRIAR PRODUTO (ONLINE)
+window.criarProduto = async function(){
 
-let nome=novoProdutoNome.value
-let preco=parseFloat(novoProdutoPreco.value)
-let estoque=parseInt(novoProdutoEstoque.value)
+let nome = document.getElementById("nome").value
+let preco = parseFloat(document.getElementById("preco").value)
+let estoque = parseInt(document.getElementById("estoque").value)
 
-if(!nome||!preco||!estoque)return
+if(!nome || !preco || !estoque) return alert("Preencha tudo")
 
-produtos.push({nome,preco,estoque})
-
-localStorage.setItem("produtos",JSON.stringify(produtos))
+await addDoc(collection(db, "produtos"), {
+nome,
+preco,
+estoque
+})
 
 listarProdutos()
 
 }
 
-function removerProduto(i){
+// REMOVER PRODUTO
+window.removerProduto = async function(id){
 
 if(confirm("Remover produto?")){
 
-produtos.splice(i,1)
-
-localStorage.setItem("produtos",JSON.stringify(produtos))
-
+await deleteDoc(doc(db, "produtos", id))
 listarProdutos()
 
 }
 
 }
 
-function addProdutoCarrinho(i){
+// CARRINHO
+window.addCarrinho = function(preco, nome){
 
-let p=produtos[i]
+total += preco
+itens.push(nome)
 
-if(p.estoque<=0)return alert("Sem estoque")
-
-p.estoque--
-
-total+=p.preco
-
-itens.push(p.nome)
-
-localStorage.setItem("produtos",JSON.stringify(produtos))
-
-listarProdutos()
-
-atualizar()
+document.getElementById("total").innerText = total.toFixed(2)
+document.getElementById("lista").innerText = itens.join(", ")
 
 }
 
-function atualizar(){
-
-document.getElementById("total").innerText=(total-descontoAplicado).toFixed(2)
-document.getElementById("lista").innerText=itens.join(", ")
-
-}
-
-function addCupom(){
-
-let nome=novoCupom.value
-let valor=parseFloat(valorCupom.value)
-let tipo=tipoCupom.value
-let limite=parseInt(limiteCupom.value)||1
-
-cupons[nome]={valor,tipo,usado:0,limite}
-
-localStorage.setItem("cupons",JSON.stringify(cupons))
-
-listarCupons()
-
-}
-
-function listarCupons(){
-
-listaCupons.innerHTML=""
-
-for(let c in cupons){
-
-let cup=cupons[c]
-
-listaCupons.innerHTML+=`${c} - ${cup.usado}/${cup.limite}<br>`
-
-}
-
-}
-
-function aplicarCupom(){
-
-let codigo=cupom.value
-let cup=cupons[codigo]
-
-if(!cup)return
-
-if(cup.tipo==="percent"){
-descontoAplicado=total*(cup.valor/100)
-}else{
-descontoAplicado=cup.valor
-}
-
-cup.usado++
-
-localStorage.setItem("cupons",JSON.stringify(cupons))
-
-atualizar()
-
-}
-
-function abrirEtapa1(){
-
-if(total<=0)return alert("Carrinho vazio")
-
-etapa1.style.display="block"
-
-}
-
-function irParaPagamento(){
-
-let valor=(total-descontoAplicado).toFixed(2)
-
-valorFinalPagamento.innerText=valor
-
-qrCodePix.src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PIX 28431707291 "+valor
-
-etapa1.style.display="none"
-etapa2.style.display="block"
-
-}
-
-function enviarWhats(){
-
-let valor=(total-descontoAplicado).toFixed(2)
-
-let nome=nomeCliente.value
-let telefone=telefoneCliente.value
-let email=emailCliente.value
-
-let cidade=cidadeCliente.value
-
-let pedido="PED"+Date.now()
-let data=new Date().toLocaleString("pt-BR")
-
-let venda={
-pedido,
-data,
-nome,
-telefone,
-cidade,
-produtos:itens.join(", "),
-valor
-}
-
-historicoVendas.push(venda)
-
-localStorage.setItem("historicoVendas",JSON.stringify(historicoVendas))
-
-totalVendas++
-valorTotalVendido+=parseFloat(valor)
-
-localStorage.setItem("totalVendas",totalVendas)
-localStorage.setItem("valorTotalVendido",valorTotalVendido)
-
-let msg=`Pedido ${pedido}
-
-Cliente: ${nome}
-
-Produtos: ${itens.join(", ")}
-
-Valor: R$ ${valor}`
-
-window.location.href="https://wa.me/5592984905651?text="+encodeURIComponent(msg)
-
-}
-
-function atualizarStats(){
-
-document.getElementById("totalVendas").innerText=totalVendas
-document.getElementById("valorTotalVendido").innerText=valorTotalVendido.toFixed(2)
-
-}
-
-function resetarVendas(){
-
-if(confirm("Resetar vendas?")){
-
-totalVendas=0
-valorTotalVendido=0
-
-localStorage.setItem("totalVendas",0)
-localStorage.setItem("valorTotalVendido",0)
-
-atualizarStats()
-
-}
-
-}
-
-function limparCupons(){
-
-cupons={}
-
-localStorage.setItem("cupons",JSON.stringify(cupons))
-
-listarCupons()
-
-}
-
-function exportarDados(){
-
-let dados={
-produtos,
-cupons,
-totalVendas,
-valorTotalVendido
-}
-
-let blob=new Blob([JSON.stringify(dados,null,2)],{type:"application/json"})
-
-let a=document.createElement("a")
-
-a.href=URL.createObjectURL(blob)
-a.download="dados_loja.json"
-a.click()
-
-}
-
-function exportarHistorico(){
-
-if(historicoVendas.length===0){
-alert("Nenhuma venda registrada")
-return
-}
-
-let tabela=`
-<table border="1">
-<tr>
-<th>Pedido</th>
-<th>Data</th>
-<th>Cliente</th>
-<th>Telefone</th>
-<th>Cidade</th>
-<th>Produtos</th>
-<th>Valor</th>
-</tr>
-`
-
-historicoVendas.forEach(v=>{
-
-tabela+=`
-<tr>
-<td>${v.pedido}</td>
-<td>${v.data}</td>
-<td>${v.nome}</td>
-<td>${v.telefone}</td>
-<td>${v.cidade}</td>
-<td>${v.produtos}</td>
-<td>${v.valor}</td>
-</tr>
-`
-
-})
-
-tabela+="</table>"
-
-let blob=new Blob([tabela],{type:"application/vnd.ms-excel"})
-
-let a=document.createElement("a")
-
-a.href=URL.createObjectURL(blob)
-
-a.download="historico_vendas.xls"
-
-a.click()
-
-}
-
+// INICIAR
 listarProdutos()
 
 </script>
