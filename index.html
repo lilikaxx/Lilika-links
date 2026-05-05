@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Loja Rosa ULTRA</title>
 
 <style>
@@ -12,14 +13,16 @@ font-family:'Segoe UI',sans-serif;
 background:linear-gradient(135deg,#ff4da6,#ff99cc);
 color:white;
 text-align:center;
+transition:0.4s;
 }
-
+body.dark{
+background:linear-gradient(135deg,#111,#333);
+}
 header{
 padding:20px;
 font-size:26px;
 font-weight:bold;
 }
-
 .container{
 display:flex;
 flex-wrap:wrap;
@@ -27,81 +30,148 @@ justify-content:center;
 gap:20px;
 padding:20px;
 }
-
 .card{
 background:rgba(255,255,255,0.15);
+backdrop-filter:blur(10px);
 padding:20px;
 border-radius:20px;
 width:250px;
 }
-
 .botao{
 background:white;
 color:#ff1493;
 border:none;
-padding:10px;
-border-radius:20px;
-margin-top:10px;
+padding:10px 18px;
+border-radius:25px;
 cursor:pointer;
+margin-top:10px;
+font-weight:bold;
 }
-
+input,select{
+width:90%;
+padding:8px;
+border-radius:10px;
+border:none;
+margin-top:10px;
+}
+.carrinho{
+background:white;
+color:#ff1493;
+padding:20px;
+margin:20px auto;
+border-radius:20px;
+max-width:400px;
+}
+.admin-btn{
+position:fixed;
+left:10px;
+top:10px;
+background:white;
+color:#ff1493;
+border:none;
+border-radius:50%;
+width:45px;
+height:45px;
+cursor:pointer;
+z-index:999;
+}
 .admin-panel{
 position:fixed;
 left:-100%;
 top:0;
 width:80%;
+max-width:400px;
 height:100%;
 background:white;
 color:#ff1493;
 padding:20px;
 transition:0.4s;
 overflow:auto;
+z-index:998;
 }
-
 .admin-panel.active{
 left:0;
+}
+.etapa{
+display:none;
+background:white;
+color:#ff1493;
+padding:20px;
+border-radius:20px;
+max-width:400px;
+margin:20px auto;
 }
 </style>
 </head>
 
 <body>
 
-<button onclick="toggleAdmin()">⚙</button>
+<button class="admin-btn" onclick="toggleAdmin()">⚙</button>
 
 <div class="admin-panel" id="adminPanel">
 
-<h2>Painel ADM</h2>
+<h3>Painel ADM</h3>
 
+<div id="loginArea">
 <input type="password" id="adminKey" placeholder="Digite a Key">
-<button onclick="verificarKey()">Entrar</button>
+<button class="botao" onclick="verificarKey()">Entrar</button>
+<p id="erroKey"></p>
+</div>
 
 <div id="adminArea" style="display:none;">
+<button class="botao" onclick="toggleTheme()">Tema escuro</button>
 
-<h3>Produtos</h3>
-
-<input id="nome" placeholder="Nome">
-<input id="preco" type="number" placeholder="Preço">
-<input id="estoque" type="number" placeholder="Estoque">
-
-<button onclick="criarProduto()">Criar Produto</button>
-
+<h4>Produtos</h4>
 <div id="listaProdutos"></div>
 
+<input id="novoProdutoNome" placeholder="Nome">
+<input id="novoProdutoPreco" type="number" placeholder="Preço">
+<input id="novoProdutoEstoque" type="number" placeholder="Estoque">
+
+<button class="botao" onclick="criarProduto()">Criar Produto</button>
+
+<h4>Cupons</h4>
+<div id="listaCupons"></div>
+
+<input id="novoCupom" placeholder="Cupom">
+<input id="valorCupom" type="number" placeholder="Valor">
+
+<select id="tipoCupom">
+<option value="percent">%</option>
+<option value="fixo">R$</option>
+</select>
+
+<input id="limiteCupom" type="number" placeholder="Limite">
+
+<button class="botao" onclick="addCupom()">Criar Cupom</button>
+
+<h4>Financeiro</h4>
+<p>Total vendas: <span id="totalVendas">0</span></p>
+<p>Total faturado: R$ <span id="valorTotalVendido">0.00</span></p>
+
+<h4>Ferramentas</h4>
+<button class="botao" onclick="resetarVendas()">Resetar vendas</button>
+<button class="botao" onclick="limparCupons()">Limpar cupons</button>
 </div>
 </div>
 
 <header>✨ Loja Rosa ULTRA ✨</header>
 
-<div class="container" id="produtos"></div>
+<div class="container" id="produtosContainer"></div>
+
+<div class="carrinho">
+<h2>Carrinho</h2>
+<div id="lista"></div>
+<h3>Total R$ <span id="total">0.00</span></h3>
+</div>
 
 <!-- FIREBASE -->
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const firebaseConfig = {
-apiKey: "AIzaSyBcdKZn5VIIHf23LJzoSvADshLlYhZ3IFo",
+apiKey: "AIzaSy...",
 authDomain: "lilika-acessorios.firebaseapp.com",
 projectId: "lilika-acessorios",
 storageBucket: "lilika-acessorios.firebasestorage.app",
@@ -112,70 +182,84 @@ appId: "1:509611122143:web:5985305e2007398de4786a"
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const produtosRef = collection(db, "produtos");
+// ================= VARIÁVEIS =================
+let produtos=[]
+let total=0
+let itens=[]
 
-window.toggleAdmin = function(){
-adminPanel.classList.toggle("active")
+// ================= FUNÇÕES =================
+
+window.toggleAdmin = ()=> adminPanel.classList.toggle("active")
+
+window.verificarKey = ()=>{
+if(adminKey.value==="HG-HOWBX0"){
+loginArea.style.display="none"
+adminArea.style.display="block"
+carregarProdutos()
+}
 }
 
-window.verificarKey = function(){
-if(adminKey.value === "HG-HOWBX0"){
-adminArea.style.display = "block"
-}else{
-alert("Key errada")
-}
-}
-
-window.criarProduto = async function(){
-
-let nome = document.getElementById("nome").value
-let preco = parseFloat(document.getElementById("preco").value)
-let estoque = parseInt(document.getElementById("estoque").value)
-
-if(!nome || !preco || !estoque) return alert("Preencha tudo")
-
-await addDoc(produtosRef,{
-nome,
-preco,
-estoque
+async function carregarProdutos(){
+produtos=[]
+const snap = await getDocs(collection(db,"produtos"))
+snap.forEach(doc=>{
+produtos.push({id:doc.id,...doc.data()})
 })
-
-alert("Produto criado!")
-
+listarProdutos()
 }
 
-function renderProdutos(lista){
+window.listarProdutos = ()=>{
+produtosContainer.innerHTML=""
+listaProdutos.innerHTML=""
 
-let container = document.getElementById("produtos")
-let adminLista = document.getElementById("listaProdutos")
-
-container.innerHTML=""
-adminLista.innerHTML=""
-
-lista.forEach(doc =>{
-
-let p = doc.data()
-
-container.innerHTML += `
+produtos.forEach((p,i)=>{
+produtosContainer.innerHTML+=`
 <div class="card">
 <h3>${p.nome}</h3>
 <p>R$ ${p.preco}</p>
 <p>Estoque ${p.estoque}</p>
+<button class="botao" onclick="addProdutoCarrinho(${i})">Adicionar</button>
 </div>
 `
-
-adminLista.innerHTML += `
-<div>${p.nome} - R$ ${p.preco}</div>
-`
-
+listaProdutos.innerHTML+=`${p.nome} <button onclick="removerProduto(${i})">X</button><br>`
 })
-
 }
 
-// 🔥 TEMPO REAL (APARECE PRA TODO MUNDO)
-onSnapshot(produtosRef,(snapshot)=>{
-renderProdutos(snapshot.docs)
-})
+window.criarProduto = async ()=>{
+let nome=novoProdutoNome.value
+let preco=parseFloat(novoProdutoPreco.value)
+let estoque=parseInt(novoProdutoEstoque.value)
+
+if(!nome||!preco||!estoque)return
+
+await addDoc(collection(db,"produtos"),{nome,preco,estoque})
+
+carregarProdutos()
+}
+
+window.removerProduto = async (i)=>{
+await deleteDoc(doc(db,"produtos",produtos[i].id))
+carregarProdutos()
+}
+
+window.addProdutoCarrinho = async (i)=>{
+let p=produtos[i]
+if(p.estoque<=0)return alert("Sem estoque")
+
+p.estoque--
+
+await updateDoc(doc(db,"produtos",p.id),{estoque:p.estoque})
+
+total+=p.preco
+itens.push(p.nome)
+
+document.getElementById("total").innerText=total.toFixed(2)
+document.getElementById("lista").innerText=itens.join(", ")
+
+carregarProdutos()
+}
+
+carregarProdutos()
 
 </script>
 
