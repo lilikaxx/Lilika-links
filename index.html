@@ -14,6 +14,12 @@ color:white;
 text-align:center;
 }
 
+header{
+padding:20px;
+font-size:26px;
+font-weight:bold;
+}
+
 .container{
 display:flex;
 flex-wrap:wrap;
@@ -33,10 +39,10 @@ width:250px;
 background:white;
 color:#ff1493;
 border:none;
-padding:10px 18px;
-border-radius:25px;
-cursor:pointer;
+padding:10px;
+border-radius:20px;
 margin-top:10px;
+cursor:pointer;
 }
 
 .admin-panel{
@@ -55,180 +61,121 @@ overflow:auto;
 .admin-panel.active{
 left:0;
 }
-
-.admin-btn{
-position:fixed;
-top:10px;
-left:10px;
-border:none;
-border-radius:50%;
-width:45px;
-height:45px;
-}
-
-.carrinho{
-background:white;
-color:#ff1493;
-padding:20px;
-margin:20px;
-border-radius:20px;
-}
 </style>
 </head>
 
 <body>
 
-<button class="admin-btn" onclick="toggleAdmin()">⚙</button>
+<button onclick="toggleAdmin()">⚙</button>
 
 <div class="admin-panel" id="adminPanel">
 
-<div id="loginArea">
-<input type="password" id="adminKey" placeholder="Key">
+<h2>Painel ADM</h2>
+
+<input type="password" id="adminKey" placeholder="Digite a Key">
 <button onclick="verificarKey()">Entrar</button>
-<p id="erroKey"></p>
-</div>
 
 <div id="adminArea" style="display:none;">
 
 <h3>Produtos</h3>
-<div id="listaProdutos"></div>
 
-<input id="novoProdutoNome" placeholder="Nome">
-<input id="novoProdutoPreco" type="number" placeholder="Preço">
-<input id="novoProdutoEstoque" type="number" placeholder="Estoque">
+<input id="nome" placeholder="Nome">
+<input id="preco" type="number" placeholder="Preço">
+<input id="estoque" type="number" placeholder="Estoque">
 
 <button onclick="criarProduto()">Criar Produto</button>
 
-<h3>Cupons</h3>
-<div id="listaCupons"></div>
-
-<input id="novoCupom" placeholder="Cupom">
-<input id="valorCupom" type="number" placeholder="Valor">
-<select id="tipoCupom">
-<option value="percent">%</option>
-<option value="fixo">R$</option>
-</select>
-
-<button onclick="addCupom()">Criar Cupom</button>
+<div id="listaProdutos"></div>
 
 </div>
 </div>
 
-<h1>Loja Rosa ULTRA</h1>
+<header>✨ Loja Rosa ULTRA ✨</header>
 
-<div class="container" id="produtosContainer"></div>
+<div class="container" id="produtos"></div>
 
-<div class="carrinho">
-<h2>Carrinho</h2>
-<div id="lista"></div>
-<h3>Total: R$ <span id="total">0</span></h3>
-</div>
-
+<!-- FIREBASE -->
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+import { getFirestore, collection, addDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBcdKZn5VIIHf23LJzoSvADshLlYhZ3IFo",
-  authDomain: "lilika-acessorios.firebaseapp.com",
-  databaseURL: "https://lilika-acessorios-default-rtdb.firebaseio.com/",
-  projectId: "lilika-acessorios",
+apiKey: "AIzaSyBcdKZn5VIIHf23LJzoSvADshLlYhZ3IFo",
+authDomain: "lilika-acessorios.firebaseapp.com",
+projectId: "lilika-acessorios",
+storageBucket: "lilika-acessorios.firebasestorage.app",
+messagingSenderId: "509611122143",
+appId: "1:509611122143:web:5985305e2007398de4786a"
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+const db = getFirestore(app);
 
-// VARIÁVEIS
-let produtos = []
-let cupons = {}
-let total = 0
-let itens = []
+const produtosRef = collection(db, "produtos");
 
-// 🔥 CARREGAR DADOS
-onValue(ref(db,"produtos"), snap=>{
-produtos = snap.val() || []
-renderProdutos()
-})
+window.toggleAdmin = function(){
+adminPanel.classList.toggle("active")
+}
 
-onValue(ref(db,"cupons"), snap=>{
-cupons = snap.val() || {}
-renderCupons()
-})
-
-// 🔐 ADMIN
-window.toggleAdmin = ()=> adminPanel.classList.toggle("active")
-
-window.verificarKey = ()=>{
-if(adminKey.value==="HG-HOWBX0"){
-loginArea.style.display="none"
-adminArea.style.display="block"
+window.verificarKey = function(){
+if(adminKey.value === "HG-HOWBX0"){
+adminArea.style.display = "block"
 }else{
-erroKey.innerText="Key errada"
+alert("Key errada")
 }
 }
 
-// 📦 PRODUTOS
-window.criarProduto = ()=>{
-let nome=novoProdutoNome.value
-let preco=parseFloat(novoProdutoPreco.value)
-let estoque=parseInt(novoProdutoEstoque.value)
+window.criarProduto = async function(){
 
-if(!nome||!preco||!estoque)return alert("Preencha tudo")
+let nome = document.getElementById("nome").value
+let preco = parseFloat(document.getElementById("preco").value)
+let estoque = parseInt(document.getElementById("estoque").value)
 
-produtos.push({nome,preco,estoque})
-set(ref(db,"produtos"),produtos)
+if(!nome || !preco || !estoque) return alert("Preencha tudo")
+
+await addDoc(produtosRef,{
+nome,
+preco,
+estoque
+})
+
+alert("Produto criado!")
+
 }
 
-window.removerProduto = (i)=>{
-produtos.splice(i,1)
-set(ref(db,"produtos"),produtos)
-}
+function renderProdutos(lista){
 
-function renderProdutos(){
-produtosContainer.innerHTML=""
-listaProdutos.innerHTML=""
+let container = document.getElementById("produtos")
+let adminLista = document.getElementById("listaProdutos")
 
-produtos.forEach((p,i)=>{
-produtosContainer.innerHTML+=`
+container.innerHTML=""
+adminLista.innerHTML=""
+
+lista.forEach(doc =>{
+
+let p = doc.data()
+
+container.innerHTML += `
 <div class="card">
 <h3>${p.nome}</h3>
 <p>R$ ${p.preco}</p>
 <p>Estoque ${p.estoque}</p>
-<button onclick="addCarrinho(${i})">Adicionar</button>
-</div>`
+</div>
+`
 
-listaProdutos.innerHTML+=`
-<div>${p.nome} 
-<button onclick="removerProduto(${i})">X</button></div>`
+adminLista.innerHTML += `
+<div>${p.nome} - R$ ${p.preco}</div>
+`
+
 })
+
 }
 
-// 🛒 CARRINHO
-window.addCarrinho = (i)=>{
-let p=produtos[i]
-total+=p.preco
-itens.push(p.nome)
-totalEl.innerText=total
-lista.innerText=itens.join(", ")
-}
-
-// 🎟 CUPONS
-window.addCupom = ()=>{
-let nome=novoCupom.value
-let valor=parseFloat(valorCupom.value)
-let tipo=tipoCupom.value
-
-cupons[nome]={valor,tipo}
-set(ref(db,"cupons"),cupons)
-}
-
-function renderCupons(){
-listaCupons.innerHTML=""
-for(let c in cupons){
-listaCupons.innerHTML+=c+"<br>"
-}
-}
+// 🔥 TEMPO REAL (APARECE PRA TODO MUNDO)
+onSnapshot(produtosRef,(snapshot)=>{
+renderProdutos(snapshot.docs)
+})
 
 </script>
 
