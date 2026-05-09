@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Loja Lilika acessórios</title>
 
 <style>
@@ -76,7 +77,6 @@ border-radius:18px;
 font-weight:bold;
 text-decoration:none;
 font-size:18px;
-transition:0.3s;
 }
 
 .btn1{
@@ -87,41 +87,6 @@ color:#ff1493;
 .btn2{
 border:2px solid white;
 color:white;
-}
-
-.btn:hover{
-transform:scale(1.05);
-}
-
-#areaUsuario{
-text-align:center;
-padding:20px;
-}
-
-.botao{
-background:linear-gradient(135deg,#ff1493,#ff69b4);
-color:white;
-border:none;
-padding:12px 20px;
-border-radius:15px;
-cursor:pointer;
-font-weight:bold;
-margin-top:10px;
-}
-
-.titulo{
-text-align:center;
-padding-top:40px;
-font-size:35px;
-font-weight:bold;
-}
-
-.linha{
-width:120px;
-height:5px;
-background:#ff1493;
-margin:15px auto 35px;
-border-radius:20px;
 }
 
 .container{
@@ -139,11 +104,6 @@ padding:20px;
 border-radius:25px;
 text-align:center;
 box-shadow:0 5px 20px rgba(255,20,147,0.12);
-transition:0.3s;
-}
-
-.card:hover{
-transform:translateY(-5px);
 }
 
 .card img{
@@ -154,25 +114,30 @@ border-radius:20px;
 margin-bottom:15px;
 }
 
-.card h3{
-font-size:24px;
-margin-bottom:10px;
-}
-
-.preco{
-font-size:22px;
+.botao{
+background:linear-gradient(135deg,#ff1493,#ff69b4);
+color:white;
+border:none;
+padding:12px 20px;
+border-radius:15px;
+cursor:pointer;
 font-weight:bold;
-margin-bottom:10px;
+margin-top:10px;
 }
 
-.carrinho{
+.carrinho,
+.etapa{
 background:white;
 max-width:450px;
-margin:40px auto;
+margin:30px auto;
 padding:25px;
 border-radius:25px;
 box-shadow:0 5px 20px rgba(255,20,147,0.12);
 text-align:center;
+}
+
+.etapa{
+display:none;
 }
 
 input,select{
@@ -181,33 +146,6 @@ padding:12px;
 border-radius:12px;
 border:1px solid #ffc0db;
 margin-top:10px;
-}
-
-.etapa{
-display:none;
-background:white;
-max-width:450px;
-margin:20px auto;
-padding:25px;
-border-radius:25px;
-text-align:center;
-box-shadow:0 5px 20px rgba(255,20,147,0.12);
-}
-
-.admin-btn{
-position:fixed;
-left:15px;
-top:15px;
-width:50px;
-height:50px;
-border:none;
-border-radius:50%;
-background:white;
-color:#ff1493;
-font-size:22px;
-cursor:pointer;
-z-index:9999;
-box-shadow:0 2px 10px rgba(0,0,0,0.15);
 }
 
 .admin-panel{
@@ -239,23 +177,29 @@ font-weight:bold;
 
 </style>
 </head>
-<body>
 
-<button class="admin-btn" onclick="toggleAdmin()">⚙</button>
+<body>
 
 <div class="admin-panel" id="adminPanel">
 
 <h2>Painel ADM</h2>
 
 <div id="loginArea">
+
 <input type="password" id="adminKey" placeholder="Digite a Key">
-<button class="botao" onclick="verificarKey()">Entrar</button>
+
+<button class="botao" onclick="verificarKey()">
+Entrar
+</button>
+
 <p id="erroKey"></p>
+
 </div>
 
 <div id="adminArea" style="display:none;">
 
 <h3>Produtos</h3>
+
 <div id="listaProdutos"></div>
 
 <input id="novoProdutoNome" placeholder="Nome">
@@ -268,10 +212,10 @@ font-weight:bold;
 Criar Produto
 </button>
 
-<h3>Cupons Promocionais</h3>
+<h3 style="margin-top:30px;">Cupons</h3>
 
-<input id="novoCupom" placeholder="Nome do cupom">
-<input id="valorCupom" type="number" placeholder="Valor % desconto">
+<input id="novoCupom" placeholder="Cupom">
+<input id="valorCupom" type="number" placeholder="% desconto">
 <input id="diasCupom" type="number" placeholder="Dias">
 <input id="horasCupom" type="number" placeholder="Horas">
 <input id="minutosCupom" type="number" placeholder="Minutos">
@@ -280,19 +224,21 @@ Criar Produto
 Criar Cupom
 </button>
 
-<div id="listaCupons" style="margin-top:20px;"></div>
+<div id="listaCupons"></div>
 
-<h3 style="margin-top:35px;">Financeiro</h3>
+<h3 style="margin-top:30px;">Financeiro</h3>
 
-<p>Total vendas: <span id="totalVendas">0</span></p>
+<p>Total vendas:
+<span id="totalVendas">0</span></p>
 
-<p>Total faturado: R$ <span id="valorTotalVendido">0.00</span></p>
+<p>Total faturado:
+R$ <span id="valorTotalVendido">0.00</span></p>
 
-<button class="botao" onclick="exportarDados()" style="width:100%;">
+<button class="botao" onclick="exportarDados()">
 Exportar vendas
 </button>
 
-<button class="botao" onclick="resetarVendas()" style="width:100%;background:#ff4d6d;">
+<button class="botao" onclick="resetarVendas()">
 Resetar vendas
 </button>
 
@@ -300,47 +246,72 @@ Resetar vendas
 </div>
 
 <header>
-<div class="logo">🌸 Lilika acessórios</div>
-<div class="menu" onclick="abrirMenu()">☰</div>
+
+<div class="logo">
+🌸 Lilika acessórios
+</div>
+
+<div class="menu" onclick="abrirMenu()">
+☰
+</div>
+
 </header>
 
 <section class="hero">
-<h1>Bem-vindo à Lilika</h1>
+
+<h1>Bem-vinda à Lilika</h1>
+
 <p>
-Os melhores acessórios femininos com um design moderno e elegante.
+Os melhores acessórios femininos com estilo moderno e elegante.
 </p>
 
 <div class="botoes">
-<a href="#produtos" class="btn btn1">Ver Produtos</a>
-<a href="#" class="btn btn2">Categorias</a>
+
+<a href="#produtos" class="btn btn1">
+Ver Produtos
+</a>
+
+<a href="#" class="btn btn2">
+Categorias
+</a>
+
 </div>
+
 </section>
 
-<div id="areaUsuario">
+<div id="areaUsuario" style="text-align:center;padding:20px;">
 
 <button class="botao" onclick="loginGoogle()">
 Entrar com Google
 </button>
 
 <div id="perfilUsuario" style="display:none;">
-<img id="fotoUsuario" style="width:80px;height:80px;border-radius:50%;margin-top:20px;">
+
+<img id="fotoUsuario"
+style="width:80px;height:80px;border-radius:50%;margin-top:20px;">
+
 <h3 id="nomeUsuario"></h3>
+
 <p id="emailUsuario"></p>
-<button class="botao" onclick="logout()">Sair</button>
-</div>
+
+<button class="botao" onclick="logout()">
+Sair
+</button>
 
 </div>
 
-<h2 class="titulo">Produtos Populares</h2>
-<div class="linha"></div>
+</div>
 
 <div class="container" id="produtosContainer"></div>
 
 <div class="carrinho">
+
 <h2>Carrinho</h2>
+
 <div id="itensCarrinho"></div>
 
-<h3>Total: <span id="total">R$ 0.00</span></h3>
+<h3>Total:
+<span id="total">R$ 0.00</span></h3>
 
 <input id="cupom" placeholder="Cupom">
 
@@ -351,10 +322,13 @@ Aplicar Cupom
 <button class="botao" onclick="abrirEtapa1()">
 Finalizar Compra
 </button>
+
 </div>
 
 <div id="etapa1" class="etapa">
+
 <h2>Dados do Cliente</h2>
+
 <input id="nomeCliente" placeholder="Nome completo">
 <input id="telefoneCliente" placeholder="Telefone">
 <input id="emailCliente" placeholder="Email">
@@ -362,9 +336,11 @@ Finalizar Compra
 <button class="botao" onclick="irParaPagamento()">
 Continuar
 </button>
+
 </div>
 
 <div id="etapa2" class="etapa">
+
 <h2>Pagamento PIX</h2>
 
 <h1>R$ <span id="valorFinalPagamento">0.00</span></h1>
@@ -376,9 +352,8 @@ Continuar
 <button class="botao" onclick="enviarWhats()">
 Paguei
 </button>
-</div>
 
-<!-- MENU LATERAL -->
+</div>
 
 <div id="menuLateral" style="
 position:fixed;
@@ -394,7 +369,7 @@ z-index:99999;
 overflow:auto;
 ">
 
-<h2 style="margin-bottom:25px;color:#ff1493;">
+<h2 style="margin-bottom:25px;">
 🌸 Menu
 </h2>
 
@@ -407,41 +382,18 @@ Painel ADM
 </h3>
 
 <p style="margin-top:10px;">
-Entre em contato:
-</p>
-
-<p style="margin-top:10px;font-weight:bold;">
 📧 seuemail@gmail.com
 </p>
 
-<p style="margin-top:10px;font-weight:bold;">
+<p style="margin-top:10px;">
 📱 (92) 98490-5651
 </p>
 
 <a href="https://wa.me/5592984905651"
 class="botao"
 style="display:block;text-align:center;text-decoration:none;">
-Chamar no WhatsApp
+WhatsApp
 </a>
-
-<h3 style="margin-top:35px;">
-🎁 Descontos Disponíveis
-</h3>
-
-<div style="
-background:#fff0f7;
-padding:15px;
-border-radius:15px;
-margin-top:15px;
-">
-
-<p><b>LILIKA10</b> → 10% OFF</p>
-<br>
-<p><b>ROSA20</b> → R$20 OFF</p>
-<br>
-<p><b>FRETEGRATIS</b> → Frete grátis</p>
-
-</div>
 
 <button class="botao"
 onclick="fecharMenu()"
@@ -451,127 +403,11 @@ Fechar
 
 </div>
 
-<script>
-
-function abrirMenu(){
-document.getElementById('menuLateral').style.right='0'
-}
-
-function fecharMenu(){
-document.getElementById('menuLateral').style.right='-100%'
-}
-
-// CUPONS COM TEMPO
-
-let cuponsTemporarios = []
-
-function criarCupomTempo(){
-
-let nome = document.getElementById('novoCupom').value
-let valor = document.getElementById('valorCupom').value
-let dias = parseInt(document.getElementById('diasCupom').value || 0)
-let horas = parseInt(document.getElementById('horasCupom').value || 0)
-let minutos = parseInt(document.getElementById('minutosCupom').value || 0)
-
-let tempoFinal = new Date().getTime() +
-(dias*24*60*60*1000) +
-(horas*60*60*1000) +
-(minutos*60*1000)
-
-cuponsTemporarios.push({
-nome,
-valor,
-tempoFinal
-})
-
-atualizarCupons()
-}
-
-function atualizarCupons(){
-
-let area = document.getElementById('listaCupons')
-
-area.innerHTML=''
-
-cuponsTemporarios.forEach((cupom,index)=>{
-
-let agora = new Date().getTime()
-let distancia = cupom.tempoFinal - agora
-
-if(distancia <= 0){
-return
-}
-
-let dias = Math.floor(distancia/(1000*60*60*24))
-let horas = Math.floor((distancia%(1000*60*60*24))/(1000*60*60))
-let minutos = Math.floor((distancia%(1000*60*60))/(1000*60))
-
-area.innerHTML += `
-<div style="
-background:#fff0f7;
-padding:15px;
-border-radius:15px;
-margin-top:15px;
-">
-
-<b>${cupom.nome}</b>
-<br><br>
-${cupom.valor}% OFF
-<br><br>
-⏳ ${dias}d ${horas}h ${minutos}m
-
-</div>
-`
-
-})
-}
-
-setInterval(atualizarCupons,60000)
-
-// EXPORTAR VENDAS
-
-function exportarDados(){
-
-let dados = `
-Total vendas: ${document.getElementById('totalVendas').innerText}
-
-Valor faturado:
-R$ ${document.getElementById('valorTotalVendido').innerText}
-`
-
-let blob = new Blob([dados],{type:'text/plain'})
-
-let link = document.createElement('a')
-
-link.href = URL.createObjectURL(blob)
-link.download = 'vendas.txt'
-link.click()
-
-}
-
-// RESETAR
-
-function resetarVendas(){
-
-if(confirm('Deseja resetar as vendas?')){
-
-document.getElementById('totalVendas').innerText='0'
-document.getElementById('valorTotalVendido').innerText='0.00'
-
-alert('Vendas resetadas')
-
-}
-}
-
-</script>
-
 <footer>
 ✨ Loja Lilika acessórios ✨
 </footer>
 
 <script type="module">
-
-// ================= IMPORTS =================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
@@ -593,17 +429,17 @@ onAuthStateChanged,
 signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// ================= FIREBASE =================
-
 const firebaseConfig = {
-  apiKey: "AIzaSyBcdKZn5VIIHf23LJzoSvADshLlYhZ3IFo",
-  authDomain: "lilika-acessorios.firebaseapp.com",
-  databaseURL: "https://lilika-acessorios-default-rtdb.firebaseio.com",
-  projectId: "lilika-acessorios",
-  storageBucket: "lilika-acessorios.firebasestorage.app",
-  messagingSenderId: "509611122143",
-  appId: "1:509611122143:web:5985305e2007398de4786a",
-  measurementId: "G-1Q2470LJ7N"
+
+apiKey: "AIzaSyBcdKZn5VIIHf23LJzoSvADshLlYhZ3IFo",
+authDomain: "lilika-acessorios.firebaseapp.com",
+databaseURL: "https://lilika-acessorios-default-rtdb.firebaseio.com",
+projectId: "lilika-acessorios",
+storageBucket: "lilika-acessorios.firebasestorage.app",
+messagingSenderId: "509611122143",
+appId: "1:509611122143:web:5985305e2007398de4786a",
+measurementId: "G-1Q2470LJ7N"
+
 };
 
 const app = initializeApp(firebaseConfig);
@@ -614,73 +450,22 @@ const auth = getAuth(app);
 
 const provider = new GoogleAuthProvider()
 
-// ================= VARIÁVEIS =================
-
 let total = 0
 let itens = []
 let descontoAplicado = 0
 
 let produtos = []
-let cupons = {}
 
 let totalVendas = 0
 let valorTotalVendido = 0
 
-// ================= LOGIN GOOGLE =================
-
-window.loginGoogle = async function(){
-
-try{
-
-const result = await signInWithPopup(auth, provider)
-
-const user = result.user
-
-await set(ref(db,"usuarios/"+user.uid),{
-nome:user.displayName,
-email:user.email,
-foto:user.photoURL
-})
-
-}catch(err){
-
-alert("Erro no login")
-
-console.log(err)
-
+window.abrirMenu=function(){
+menuLateral.style.right="0"
 }
 
+window.fecharMenu=function(){
+menuLateral.style.right="-100%"
 }
-
-// ================= MOSTRAR PERFIL =================
-
-onAuthStateChanged(auth,(user)=>{
-
-if(user){
-
-perfilUsuario.style.display="block"
-
-nomeUsuario.innerText=user.displayName
-
-emailUsuario.innerText=user.email
-
-fotoUsuario.src=user.photoURL
-
-}else{
-
-perfilUsuario.style.display="none"
-
-}
-
-})
-
-// ================= LOGOUT =================
-
-window.logout=function(){
-signOut(auth)
-}
-
-// ================= ADMIN =================
 
 window.toggleAdmin=function(){
 adminPanel.classList.toggle("active")
@@ -695,10 +480,6 @@ if(key==="HG-HOWBX0" || key==="HG-HWIBZ0"){
 loginArea.style.display="none"
 adminArea.style.display="block"
 
-carregarProdutos()
-listarCupons()
-atualizarStats()
-
 }else{
 
 erroKey.innerText="Key incorreta"
@@ -707,11 +488,39 @@ erroKey.innerText="Key incorreta"
 
 }
 
-window.toggleTheme=function(){
-document.body.classList.toggle("dark")
+window.loginGoogle = async function(){
+
+const result = await signInWithPopup(auth,provider)
+
+const user = result.user
+
+await set(ref(db,"usuarios/"+user.uid),{
+nome:user.displayName,
+email:user.email,
+foto:user.photoURL
+})
+
 }
 
-// ================= CARREGAR PRODUTOS =================
+onAuthStateChanged(auth,(user)=>{
+
+if(user){
+
+perfilUsuario.style.display="block"
+
+nomeUsuario.innerText=user.displayName
+
+emailUsuario.innerText=user.email
+
+fotoUsuario.src=user.photoURL
+
+}
+
+})
+
+window.logout=function(){
+signOut(auth)
+}
 
 async function carregarProdutos(){
 
@@ -738,139 +547,45 @@ listarProdutos()
 
 }
 
-// ================= CRIAR PRODUTO =================
-
 window.criarProduto = async function(){
-
-let nome = novoProdutoNome.value.trim()
-let preco = parseFloat(novoProdutoPreco.value)
-let estoque = parseInt(novoProdutoEstoque.value)
-let imagem = novoProdutoImagem.value.trim()
-let descricao = novoProdutoDescricao.value.trim()
-
-if(!nome || isNaN(preco) || isNaN(estoque)){
-return alert("Preencha tudo")
-}
-
-if(!imagem){
-imagem="https://via.placeholder.com/250"
-}
-
-if(!descricao){
-descricao="Sem descrição"
-}
 
 const novoRef = push(ref(db,"produtos"))
 
 await set(novoRef,{
-nome,
-preco,
-estoque,
-imagem,
-descricao
+nome:novoProdutoNome.value,
+preco:Number(novoProdutoPreco.value),
+estoque:Number(novoProdutoEstoque.value),
+imagem:novoProdutoImagem.value,
+descricao:novoProdutoDescricao.value
 })
-
-novoProdutoNome.value=""
-novoProdutoPreco.value=""
-novoProdutoEstoque.value=""
-novoProdutoImagem.value=""
-novoProdutoDescricao.value=""
 
 carregarProdutos()
 
 }
-
-// ================= EDITAR PRODUTO =================
 
 window.editarProduto = async function(i){
 
 let p = produtos[i]
 
-let nome = prompt("Nome:", p.nome)
-let preco = prompt("Preço:", p.preco)
-let estoque = prompt("Estoque:", p.estoque)
-let imagem = prompt("Imagem:", p.imagem)
-let descricao = prompt("Descrição:", p.descricao)
+let nome = prompt("Nome",p.nome)
+let preco = prompt("Preço",p.preco)
 
 await update(ref(db,"produtos/"+p.id),{
 nome,
-preco:Number(preco),
-estoque:Number(estoque),
-imagem,
-descricao
+preco:Number(preco)
 })
 
 carregarProdutos()
 
 }
 
-// ================= REMOVER PRODUTO =================
-
 window.removerProduto = async function(i){
-
-if(confirm("Remover produto?")){
 
 await remove(ref(db,"produtos/"+produtos[i].id))
 
 carregarProdutos()
 
 }
-
-}
-
-// ================= CARRINHO =================
-
-window.addProdutoCarrinho = async function(i){
-
-let p = produtos[i]
-
-if(!p) return
-
-if(p.estoque<=0){
-return alert("Sem estoque")
-}
-
-p.estoque--
-
-await update(ref(db,"produtos/"+p.id),{
-estoque:p.estoque
-})
-
-total += Number(p.preco)
-
-itens.push(p.nome)
-
-listarProdutos()
-
-atualizar()
-
-}
-
-// ================= ATUALIZAR =================
-
-function atualizar(){
-
-document.getElementById("total").innerText =
-"R$ " + (total - descontoAplicado).toFixed(2)
-
-document.getElementById("itensCarrinho").innerHTML =
-itens.join("<br>")
-
-}
-
-// ================= FINANCEIRO =================
-
-function atualizarStats(){
-
-document.getElementById("totalVendas").innerText =
-totalVendas
-
-document.getElementById("valorTotalVendido").innerText =
-valorTotalVendido.toFixed(2)
-
-}
-
-// ================= LISTAR PRODUTOS =================
 
 window.listarProdutos=function(){
 
@@ -880,16 +595,18 @@ listaProdutos.innerHTML=""
 produtos.forEach((p,i)=>{
 
 produtosContainer.innerHTML += `
+
 <div class="card">
 
-<img src="${p.imagem}"
-style="width:100%; border-radius:15px; margin-bottom:10px;">
+<img src="${p.imagem}">
 
 <h3>${p.nome}</h3>
 
-<p>R$ ${Number(p.preco).toFixed(2)}</p>
-
 <p>${p.descricao}</p>
+
+<h2 class="preco">
+R$ ${Number(p.preco).toFixed(2)}
+</h2>
 
 <p>Estoque ${p.estoque}</p>
 
@@ -901,12 +618,14 @@ Adicionar
 </button>
 
 </div>
+
 `
 
 listaProdutos.innerHTML += `
-<div>
 
-${p.nome} - R$ ${p.preco}
+<div style="margin-top:20px;">
+
+${p.nome}
 
 <button class="botao"
 onclick="editarProduto(${i})">
@@ -923,72 +642,138 @@ Remover
 </button>
 
 </div>
+
 `
 
 })
 
 }
 
-// ================= CUPONS =================
+window.addProdutoCarrinho = async function(i){
 
-window.addCupom=function(){
+let p = produtos[i]
+
+if(p.estoque<=0){
+return alert("Sem estoque")
+}
+
+p.estoque--
+
+await update(ref(db,"produtos/"+p.id),{
+estoque:p.estoque
+})
+
+total += Number(p.preco)
+
+itens.push(p.nome)
+
+atualizar()
+
+listarProdutos()
+
+}
+
+function atualizar(){
+
+total.innerHTML = "R$ " +
+(total - descontoAplicado).toFixed(2)
+
+itensCarrinho.innerHTML =
+itens.join("<br>")
+
+}
+
+let cuponsTemporarios =
+JSON.parse(localStorage.getItem("cupons")) || []
+
+window.criarCupomTempo=function(){
 
 let nome = novoCupom.value
-let valor = parseFloat(valorCupom.value)
-let tipo = tipoCupom.value
-let limite = parseInt(limiteCupom.value)||1
+let valor = valorCupom.value
 
-cupons[nome]={
+let dias = Number(diasCupom.value || 0)
+let horas = Number(horasCupom.value || 0)
+let minutos = Number(minutosCupom.value || 0)
+
+let tempoFinal =
+Date.now() +
+(dias*86400000) +
+(horas*3600000) +
+(minutos*60000)
+
+cuponsTemporarios.push({
+nome,
 valor,
-tipo,
-usado:0,
-limite
+tempoFinal
+})
+
+localStorage.setItem(
+"cupons",
+JSON.stringify(cuponsTemporarios)
+)
+
+atualizarCupons()
+
 }
 
-listarCupons()
-
-}
-
-window.listarCupons=function(){
+function atualizarCupons(){
 
 listaCupons.innerHTML=""
 
-for(let c in cupons){
+cuponsTemporarios.forEach(c=>{
 
-let cup = cupons[c]
+let tempo = c.tempoFinal - Date.now()
+
+if(tempo<=0)return
+
+let dias = Math.floor(tempo/86400000)
 
 listaCupons.innerHTML += `
-${c} - ${cup.usado}/${cup.limite}<br>
+
+<div style="
+background:#fff0f7;
+padding:15px;
+border-radius:15px;
+margin-top:15px;
+">
+
+<b>${c.nome}</b>
+
+<br><br>
+
+${c.valor}% OFF
+
+<br><br>
+
+⏳ ${dias} dias
+
+</div>
+
 `
 
-}
+})
 
 }
 
 window.aplicarCupom=function(){
 
-let codigo = cupom.value
-let cup = cupons[codigo]
+let codigo = cupom.value.trim()
 
-if(!cup) return
+let cup = cuponsTemporarios.find(c =>
+c.nome.toLowerCase() === codigo.toLowerCase()
+)
 
-if(cup.tipo==="percent"){
-
-descontoAplicado = total * (cup.valor/100)
-
-}else{
-
-descontoAplicado = cup.valor
-
+if(!cup){
+alert("Cupom inválido")
+return
 }
 
-cup.usado++
+descontoAplicado =
+total * (Number(cup.valor)/100)
 
 atualizar()
 
 }
-
-// ================= ETAPAS =================
 
 window.abrirEtapa1=function(){
 
@@ -1002,109 +787,42 @@ etapa1.style.display="block"
 
 window.irParaPagamento=function(){
 
-let valor=(total-descontoAplicado).toFixed(2)
+let valor =
+(total-descontoAplicado).toFixed(2)
 
 valorFinalPagamento.innerText=valor
 
 qrCodePix.src =
-"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PIX 28431707291 "+valor
+"https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PIX "+valor
 
 etapa1.style.display="none"
+
 etapa2.style.display="block"
 
 }
 
-// ================= EXPORTAR =================
-
-window.exportarDados=function(){
-
-let dados = `
-Total vendas: ${totalVendas}
-
-Valor vendido:
-R$ ${valorTotalVendido.toFixed(2)}
-`
-
-let blob = new Blob([dados],{
-type:"text/plain"
-})
-
-let link = document.createElement("a")
-
-link.href = URL.createObjectURL(blob)
-
-link.download = "financeiro.txt"
-
-link.click()
-
-}
-
-// ================= ENVIAR WHATS =================
-
 window.enviarWhats = async function(){
 
-let valor = (total - descontoAplicado).toFixed(2)
-
-let nome = nomeCliente.value
-let telefone = telefoneCliente.value
-let email = emailCliente.value
-
-let pedido = "PED"+Date.now()
-
-let data = new Date().toLocaleString("pt-BR")
-
-// FINANCEIRO
+let valor =
+(total-descontoAplicado).toFixed(2)
 
 totalVendas++
 
 valorTotalVendido += Number(valor)
 
-await set(ref(db,"financeiro"),{
-totalVendas,
-valorTotalVendido
-})
+document.getElementById("totalVendas").innerText =
+totalVendas
 
-atualizarStats()
+document.getElementById("valorTotalVendido").innerText =
+valorTotalVendido.toFixed(2)
 
-// SALVAR COMPRA
+let msg = `🛒 NOVA COMPRA
 
-const user = auth.currentUser
-
-if(user){
-
-const compraRef = push(ref(db,"compras/"+user.uid))
-
-await set(compraRef,{
-pedido,
-data,
-produtos:itens,
-valor,
-cliente:nome,
-telefone,
-email
-})
-
-}
-
-// MENSAGEM
-
-let msg = `🛒 *NOVA COMPRA*
-
-📦 Pedido: ${pedido}
-📅 Data: ${data}
-
-🛍 Produtos:
+Produtos:
 ${itens.join("\n")}
 
-💰 Valor: R$ ${valor}
-
-👤 Cliente: ${nome}
-📱 Telefone: ${telefone}
-📧 Email: ${email}
-
-💳 Pagamento via PIX enviado.
-
-✨ Loja Lilika acessorios ✨`
+Valor:
+R$ ${valor}`
 
 window.location.href =
 "https://wa.me/5592984905651?text=" +
@@ -1112,9 +830,41 @@ encodeURIComponent(msg)
 
 }
 
-// ================= INIT =================
+window.exportarDados=function(){
+
+let texto = `
+Total vendas: ${totalVendas}
+
+Faturamento:
+R$ ${valorTotalVendido}
+`
+
+let blob = new Blob([texto])
+
+let a = document.createElement("a")
+
+a.href = URL.createObjectURL(blob)
+
+a.download="vendas.txt"
+
+a.click()
+
+}
+
+window.resetarVendas=function(){
+
+totalVendas=0
+valorTotalVendido=0
+
+document.getElementById("totalVendas").innerText=0
+
+document.getElementById("valorTotalVendido").innerText="0.00"
+
+}
 
 carregarProdutos()
+
+atualizarCupons()
 
 </script>
 
