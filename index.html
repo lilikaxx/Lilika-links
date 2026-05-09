@@ -3,246 +3,358 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Loja Rosa ULTRA</title>
+<title>Loja Lilika acessórios</title>
 
 <style>
 
-body{
+*{
 margin:0;
+padding:0;
+box-sizing:border-box;
 font-family:'Segoe UI',sans-serif;
-background:linear-gradient(135deg,#ff4da6,#ff99cc);
-color:white;
-text-align:center;
-transition:0.4s;
 }
 
-body.dark{
-background:linear-gradient(135deg,#111,#333);
+body{
+background:#fff0f7;
+color:#ff1493;
 }
 
 header{
+background:white;
 padding:20px;
-font-size:26px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 2px 15px rgba(255,20,147,0.15);
+position:sticky;
+top:0;
+z-index:999;
+}
+
+.logo{
+font-size:28px;
 font-weight:bold;
 }
 
-.container{
-display:flex;
-flex-wrap:wrap;
-justify-content:center;
-gap:20px;
-padding:20px;
+.menu{
+font-size:30px;
+cursor:pointer;
 }
 
-.card{
-background:rgba(255,255,255,0.15);
-backdrop-filter:blur(10px);
+.hero{
+background:linear-gradient(135deg,#ff1493,#ff8dc7);
+padding:60px 20px;
+text-align:center;
+color:white;
+border-bottom-left-radius:35px;
+border-bottom-right-radius:35px;
+}
+
+.hero h1{
+font-size:45px;
+margin-bottom:15px;
+}
+
+.hero p{
+font-size:18px;
+max-width:700px;
+margin:auto;
+line-height:1.5;
+}
+
+.botoes{
+display:flex;
+justify-content:center;
+gap:20px;
+flex-wrap:wrap;
+margin-top:30px;
+}
+
+.btn{
+padding:16px 28px;
+border-radius:18px;
+font-weight:bold;
+text-decoration:none;
+font-size:18px;
+transition:0.3s;
+}
+
+.btn1{
+background:white;
+color:#ff1493;
+}
+
+.btn2{
+border:2px solid white;
+color:white;
+}
+
+.btn:hover{
+transform:scale(1.05);
+}
+
+#areaUsuario{
+text-align:center;
 padding:20px;
-border-radius:20px;
-width:250px;
 }
 
 .botao{
-background:white;
-color:#ff1493;
+background:linear-gradient(135deg,#ff1493,#ff69b4);
+color:white;
 border:none;
-padding:10px 18px;
-border-radius:25px;
+padding:12px 20px;
+border-radius:15px;
 cursor:pointer;
+font-weight:bold;
 margin-top:10px;
+}
+
+.titulo{
+text-align:center;
+padding-top:40px;
+font-size:35px;
 font-weight:bold;
 }
 
-input,select{
-width:90%;
-padding:8px;
-border-radius:10px;
-border:none;
-margin-top:10px;
+.linha{
+width:120px;
+height:5px;
+background:#ff1493;
+margin:15px auto 35px;
+border-radius:20px;
+}
+
+.container{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+gap:25px;
+padding:20px;
+max-width:1200px;
+margin:auto;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:25px;
+text-align:center;
+box-shadow:0 5px 20px rgba(255,20,147,0.12);
+transition:0.3s;
+}
+
+.card:hover{
+transform:translateY(-5px);
+}
+
+.card img{
+width:100%;
+height:200px;
+object-fit:cover;
+border-radius:20px;
+margin-bottom:15px;
+}
+
+.card h3{
+font-size:24px;
+margin-bottom:10px;
+}
+
+.preco{
+font-size:22px;
+font-weight:bold;
+margin-bottom:10px;
 }
 
 .carrinho{
 background:white;
-color:#ff1493;
-padding:20px;
+max-width:450px;
+margin:40px auto;
+padding:25px;
+border-radius:25px;
+box-shadow:0 5px 20px rgba(255,20,147,0.12);
+text-align:center;
+}
+
+input,select{
+width:100%;
+padding:12px;
+border-radius:12px;
+border:1px solid #ffc0db;
+margin-top:10px;
+}
+
+.etapa{
+display:none;
+background:white;
+max-width:450px;
 margin:20px auto;
-border-radius:20px;
-max-width:400px;
+padding:25px;
+border-radius:25px;
+text-align:center;
+box-shadow:0 5px 20px rgba(255,20,147,0.12);
 }
 
 .admin-btn{
 position:fixed;
-left:10px;
-top:10px;
-background:white;
-color:#ff1493;
+left:15px;
+top:15px;
+width:50px;
+height:50px;
 border:none;
 border-radius:50%;
-width:45px;
-height:45px;
+background:white;
+color:#ff1493;
+font-size:22px;
 cursor:pointer;
-z-index:999;
+z-index:9999;
+box-shadow:0 2px 10px rgba(0,0,0,0.15);
 }
 
 .admin-panel{
 position:fixed;
 left:-100%;
 top:0;
-width:80%;
+width:85%;
 max-width:400px;
 height:100%;
 background:white;
-color:#ff1493;
 padding:20px;
-transition:0.4s;
 overflow:auto;
-z-index:998;
+transition:0.4s;
+z-index:9998;
+box-shadow:0 0 20px rgba(0,0,0,0.15);
 }
 
 .admin-panel.active{
 left:0;
 }
 
-.etapa{
-display:none;
+footer{
+margin-top:50px;
+padding:25px;
 background:white;
-color:#ff1493;
-padding:20px;
-border-radius:20px;
-max-width:400px;
-margin:20px auto;
+text-align:center;
+font-weight:bold;
 }
 
 </style>
 </head>
-
 <body>
 
 <button class="admin-btn" onclick="toggleAdmin()">⚙</button>
 
 <div class="admin-panel" id="adminPanel">
 
-<h3>Painel ADM</h3>
+<h2>Painel ADM</h2>
 
 <div id="loginArea">
-
 <input type="password" id="adminKey" placeholder="Digite a Key">
-
-<button class="botao" onclick="verificarKey()">
-Entrar
-</button>
-
+<button class="botao" onclick="verificarKey()">Entrar</button>
 <p id="erroKey"></p>
-
 </div>
 
 <div id="adminArea" style="display:none;">
 
-<button class="botao" onclick="toggleTheme()">
-Tema escuro
-</button>
-
-<h4>Produtos</h4>
-
+<h3>Produtos</h3>
 <div id="listaProdutos"></div>
 
 <input id="novoProdutoNome" placeholder="Nome">
 <input id="novoProdutoPreco" type="number" placeholder="Preço">
 <input id="novoProdutoEstoque" type="number" placeholder="Estoque">
-<input id="novoProdutoImagem" placeholder="URL da imagem">
+<input id="novoProdutoImagem" placeholder="Imagem URL">
 <input id="novoProdutoDescricao" placeholder="Descrição">
 
 <button class="botao" onclick="criarProduto()">
 Criar Produto
 </button>
 
-<h4>Cupons</h4>
+<h3>Cupons Promocionais</h3>
 
-<div id="listaCupons"></div>
+<input id="novoCupom" placeholder="Nome do cupom">
+<input id="valorCupom" type="number" placeholder="Valor % desconto">
+<input id="diasCupom" type="number" placeholder="Dias">
+<input id="horasCupom" type="number" placeholder="Horas">
+<input id="minutosCupom" type="number" placeholder="Minutos">
 
-<input id="novoCupom" placeholder="Cupom">
-<input id="valorCupom" type="number" placeholder="Valor">
-
-<select id="tipoCupom">
-<option value="percent">%</option>
-<option value="fixo">R$</option>
-</select>
-
-<input id="limiteCupom" type="number" placeholder="Limite">
-
-<button class="botao" onclick="addCupom()">
+<button class="botao" onclick="criarCupomTempo()">
 Criar Cupom
 </button>
 
-<h4>Financeiro</h4>
+<div id="listaCupons" style="margin-top:20px;"></div>
 
-<p>Total vendas:
-<span id="totalVendas">0</span></p>
+<h3 style="margin-top:35px;">Financeiro</h3>
 
-<p>Total faturado:
-R$ <span id="valorTotalVendido">0.00</span></p>
+<p>Total vendas: <span id="totalVendas">0</span></p>
 
-<button class="botao" onclick="exportarDados()">
-Exportar dados
+<p>Total faturado: R$ <span id="valorTotalVendido">0.00</span></p>
+
+<button class="botao" onclick="exportarDados()" style="width:100%;">
+Exportar vendas
+</button>
+
+<button class="botao" onclick="resetarVendas()" style="width:100%;background:#ff4d6d;">
+Resetar vendas
 </button>
 
 </div>
 </div>
 
-<header>✨ Loja Lilika acessorios ✨</header>
+<header>
+<div class="logo">🌸 Lilika acessórios</div>
+<div class="menu" onclick="abrirMenu()">☰</div>
+</header>
 
-<!-- LOGIN GOOGLE -->
-<div id="areaUsuario" style="margin:20px;">
+<section class="hero">
+<h1>Bem-vindo à Lilika</h1>
+<p>
+Os melhores acessórios femininos com um design moderno e elegante.
+</p>
+
+<div class="botoes">
+<a href="#produtos" class="btn btn1">Ver Produtos</a>
+<a href="#" class="btn btn2">Categorias</a>
+</div>
+</section>
+
+<div id="areaUsuario">
 
 <button class="botao" onclick="loginGoogle()">
 Entrar com Google
 </button>
 
 <div id="perfilUsuario" style="display:none;">
-
-<img id="fotoUsuario"
-style="width:70px;height:70px;border-radius:50%;">
-
+<img id="fotoUsuario" style="width:80px;height:80px;border-radius:50%;margin-top:20px;">
 <h3 id="nomeUsuario"></h3>
-
 <p id="emailUsuario"></p>
-
-<button class="botao" onclick="logout()">
-Sair
-</button>
-
+<button class="botao" onclick="logout()">Sair</button>
 </div>
 
 </div>
+
+<h2 class="titulo">Produtos Populares</h2>
+<div class="linha"></div>
 
 <div class="container" id="produtosContainer"></div>
 
 <div class="carrinho">
-
 <h2>Carrinho</h2>
-
 <div id="itensCarrinho"></div>
 
-<h3>Total:
-<span id="total">R$ 0.00</span></h3>
+<h3>Total: <span id="total">R$ 0.00</span></h3>
 
 <input id="cupom" placeholder="Cupom">
 
 <button class="botao" onclick="aplicarCupom()">
-Aplicar
+Aplicar Cupom
 </button>
 
 <button class="botao" onclick="abrirEtapa1()">
-Finalizar
+Finalizar Compra
 </button>
-
 </div>
 
 <div id="etapa1" class="etapa">
-
-<h3>Dados do Cliente</h3>
-
+<h2>Dados do Cliente</h2>
 <input id="nomeCliente" placeholder="Nome completo">
 <input id="telefoneCliente" placeholder="Telefone">
 <input id="emailCliente" placeholder="Email">
@@ -250,24 +362,212 @@ Finalizar
 <button class="botao" onclick="irParaPagamento()">
 Continuar
 </button>
-
 </div>
 
 <div id="etapa2" class="etapa">
+<h2>Pagamento PIX</h2>
 
-<h3>Pagamento PIX</h3>
+<h1>R$ <span id="valorFinalPagamento">0.00</span></h1>
 
-<h2>R$ <span id="valorFinalPagamento">0.00</span></h2>
-
-<img id="qrCodePix" width="180">
+<img id="qrCodePix" width="200">
 
 <p>Chave PIX<br>28431707291</p>
 
 <button class="botao" onclick="enviarWhats()">
 Paguei
 </button>
+</div>
+
+<!-- MENU LATERAL -->
+
+<div id="menuLateral" style="
+position:fixed;
+right:-100%;
+top:0;
+width:280px;
+height:100%;
+background:white;
+box-shadow:-5px 0 20px rgba(0,0,0,0.15);
+padding:25px;
+transition:0.4s;
+z-index:99999;
+overflow:auto;
+">
+
+<h2 style="margin-bottom:25px;color:#ff1493;">
+🌸 Menu
+</h2>
+
+<button class="botao" onclick="toggleAdmin()" style="width:100%;">
+Painel ADM
+</button>
+
+<h3 style="margin-top:30px;">
+💬 Suporte
+</h3>
+
+<p style="margin-top:10px;">
+Entre em contato:
+</p>
+
+<p style="margin-top:10px;font-weight:bold;">
+📧 seuemail@gmail.com
+</p>
+
+<p style="margin-top:10px;font-weight:bold;">
+📱 (92) 98490-5651
+</p>
+
+<a href="https://wa.me/5592984905651"
+class="botao"
+style="display:block;text-align:center;text-decoration:none;">
+Chamar no WhatsApp
+</a>
+
+<h3 style="margin-top:35px;">
+🎁 Descontos Disponíveis
+</h3>
+
+<div style="
+background:#fff0f7;
+padding:15px;
+border-radius:15px;
+margin-top:15px;
+">
+
+<p><b>LILIKA10</b> → 10% OFF</p>
+<br>
+<p><b>ROSA20</b> → R$20 OFF</p>
+<br>
+<p><b>FRETEGRATIS</b> → Frete grátis</p>
 
 </div>
+
+<button class="botao"
+onclick="fecharMenu()"
+style="width:100%;margin-top:30px;">
+Fechar
+</button>
+
+</div>
+
+<script>
+
+function abrirMenu(){
+document.getElementById('menuLateral').style.right='0'
+}
+
+function fecharMenu(){
+document.getElementById('menuLateral').style.right='-100%'
+}
+
+// CUPONS COM TEMPO
+
+let cuponsTemporarios = []
+
+function criarCupomTempo(){
+
+let nome = document.getElementById('novoCupom').value
+let valor = document.getElementById('valorCupom').value
+let dias = parseInt(document.getElementById('diasCupom').value || 0)
+let horas = parseInt(document.getElementById('horasCupom').value || 0)
+let minutos = parseInt(document.getElementById('minutosCupom').value || 0)
+
+let tempoFinal = new Date().getTime() +
+(dias*24*60*60*1000) +
+(horas*60*60*1000) +
+(minutos*60*1000)
+
+cuponsTemporarios.push({
+nome,
+valor,
+tempoFinal
+})
+
+atualizarCupons()
+}
+
+function atualizarCupons(){
+
+let area = document.getElementById('listaCupons')
+
+area.innerHTML=''
+
+cuponsTemporarios.forEach((cupom,index)=>{
+
+let agora = new Date().getTime()
+let distancia = cupom.tempoFinal - agora
+
+if(distancia <= 0){
+return
+}
+
+let dias = Math.floor(distancia/(1000*60*60*24))
+let horas = Math.floor((distancia%(1000*60*60*24))/(1000*60*60))
+let minutos = Math.floor((distancia%(1000*60*60))/(1000*60))
+
+area.innerHTML += `
+<div style="
+background:#fff0f7;
+padding:15px;
+border-radius:15px;
+margin-top:15px;
+">
+
+<b>${cupom.nome}</b>
+<br><br>
+${cupom.valor}% OFF
+<br><br>
+⏳ ${dias}d ${horas}h ${minutos}m
+
+</div>
+`
+
+})
+}
+
+setInterval(atualizarCupons,60000)
+
+// EXPORTAR VENDAS
+
+function exportarDados(){
+
+let dados = `
+Total vendas: ${document.getElementById('totalVendas').innerText}
+
+Valor faturado:
+R$ ${document.getElementById('valorTotalVendido').innerText}
+`
+
+let blob = new Blob([dados],{type:'text/plain'})
+
+let link = document.createElement('a')
+
+link.href = URL.createObjectURL(blob)
+link.download = 'vendas.txt'
+link.click()
+
+}
+
+// RESETAR
+
+function resetarVendas(){
+
+if(confirm('Deseja resetar as vendas?')){
+
+document.getElementById('totalVendas').innerText='0'
+document.getElementById('valorTotalVendido').innerText='0.00'
+
+alert('Vendas resetadas')
+
+}
+}
+
+</script>
+
+<footer>
+✨ Loja Lilika acessórios ✨
+</footer>
 
 <script type="module">
 
