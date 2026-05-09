@@ -63,32 +63,6 @@ margin:auto;
 line-height:1.5;
 }
 
-.botoes{
-display:flex;
-justify-content:center;
-gap:20px;
-flex-wrap:wrap;
-margin-top:30px;
-}
-
-.btn{
-padding:16px 28px;
-border-radius:18px;
-font-weight:bold;
-text-decoration:none;
-font-size:18px;
-}
-
-.btn1{
-background:white;
-color:#ff1493;
-}
-
-.btn2{
-border:2px solid white;
-color:white;
-}
-
 .container{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
@@ -166,7 +140,7 @@ background:white;
 padding:20px;
 overflow:auto;
 transition:0.4s;
-z-index:9998;
+z-index:9999;
 box-shadow:0 0 20px rgba(0,0,0,0.15);
 }
 
@@ -181,11 +155,11 @@ top:0;
 width:280px;
 height:100%;
 background:white;
-box-shadow:-5px 0 20px rgba(0,0,0,0.15);
 padding:25px;
 transition:0.4s;
 z-index:99999;
 overflow:auto;
+box-shadow:-5px 0 20px rgba(0,0,0,0.15);
 }
 
 footer{
@@ -200,6 +174,8 @@ font-weight:bold;
 </head>
 
 <body>
+
+<!-- PAINEL ADM -->
 
 <div class="admin-panel" id="adminPanel">
 
@@ -291,21 +267,9 @@ Resetar vendas
 Os melhores acessórios femininos com estilo moderno e elegante.
 </p>
 
-<div class="botoes">
-
-<a href="#produtos" class="btn btn1">
-Ver Produtos
-</a>
-
-<a href="#" class="btn btn2">
-Categorias
-</a>
-
-</div>
-
 </section>
 
-<div id="areaUsuario" style="text-align:center;padding:20px;">
+<div id="areaUsuario" style="padding:20px;text-align:center;">
 
 <button class="botao" onclick="loginGoogle()">
 Entrar com Google
@@ -336,8 +300,10 @@ Sair
 
 <div id="itensCarrinho"></div>
 
-<h3>Total:
-<span id="total">R$ 0.00</span></h3>
+<h3>
+Total:
+<span id="total">R$ 0.00</span>
+</h3>
 
 <input id="cupom" placeholder="Cupom">
 
@@ -381,17 +347,17 @@ Paguei
 
 </div>
 
+<!-- MENU -->
+
 <div id="menuLateral">
 
-<h2 style="margin-bottom:25px;">
-🌸 Menu
-</h2>
+<h2>🌸 Menu</h2>
 
 <button class="botao" onclick="toggleAdmin()">
 Painel ADM
 </button>
 
-<h3 style="margin-top:30px;">
+<h3 style="margin-top:25px;">
 💬 Suporte
 </h3>
 
@@ -403,15 +369,7 @@ Painel ADM
 📱 (92) 98490-5651
 </p>
 
-<a href="https://wa.me/5592984905651"
-class="botao"
-style="display:block;text-align:center;text-decoration:none;">
-WhatsApp
-</a>
-
-<button class="botao"
-onclick="fecharMenu()"
-style="margin-top:30px;">
+<button class="botao" onclick="fecharMenu()">
 Fechar
 </button>
 
@@ -423,7 +381,8 @@ Fechar
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
 getDatabase,
@@ -433,7 +392,8 @@ get,
 push,
 remove,
 update
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 import {
 getAuth,
@@ -441,7 +401,8 @@ GoogleAuthProvider,
 signInWithPopup,
 onAuthStateChanged,
 signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
 
@@ -465,8 +426,8 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider()
 
 let valorTotal = 0
-let itens = []
 let descontoAplicado = 0
+let itens = []
 let produtos = []
 
 let totalVendas = 0
@@ -475,23 +436,27 @@ let valorTotalVendido = 0
 let cuponsTemporarios =
 JSON.parse(localStorage.getItem("cupons")) || []
 
-window.abrirMenu=function(){
+// MENU
+
+window.abrirMenu = function(){
 menuLateral.style.right="0"
 }
 
-window.fecharMenu=function(){
+window.fecharMenu = function(){
 menuLateral.style.right="-100%"
 }
 
-window.toggleAdmin=function(){
+// ADM
+
+window.toggleAdmin = function(){
 adminPanel.classList.toggle("active")
 }
 
-window.fecharAdmin=function(){
+window.fecharAdmin = function(){
 adminPanel.classList.remove("active")
 }
 
-window.verificarKey=function(){
+window.verificarKey = function(){
 
 let key = adminKey.value
 
@@ -508,22 +473,29 @@ erroKey.innerText="Key incorreta"
 
 }
 
+// LOGIN
+
 window.loginGoogle = async function(){
 
 try{
 
-const result = await signInWithPopup(auth,provider)
+const result =
+await signInWithPopup(auth,provider)
 
 const user = result.user
 
 await set(ref(db,"usuarios/"+user.uid),{
+
 nome:user.displayName,
 email:user.email,
 foto:user.photoURL
+
 })
 
 }catch(e){
-alert("Erro no login")
+
+alert("Erro login")
+
 }
 
 }
@@ -544,15 +516,18 @@ fotoUsuario.src=user.photoURL
 
 })
 
-window.logout=function(){
+window.logout = function(){
 signOut(auth)
 }
+
+// PRODUTOS
 
 async function carregarProdutos(){
 
 produtos=[]
 
-const snapshot = await get(ref(db,"produtos"))
+const snapshot =
+await get(ref(db,"produtos"))
 
 if(snapshot.exists()){
 
@@ -586,11 +561,13 @@ return
 const novoRef = push(ref(db,"produtos"))
 
 await set(novoRef,{
+
 nome:novoProdutoNome.value,
 preco:Number(novoProdutoPreco.value),
 estoque:Number(novoProdutoEstoque.value),
 imagem:novoProdutoImagem.value,
 descricao:novoProdutoDescricao.value
+
 })
 
 alert("Produto criado")
@@ -607,8 +584,10 @@ let nome = prompt("Nome",p.nome)
 let preco = prompt("Preço",p.preco)
 
 await update(ref(db,"produtos/"+p.id),{
+
 nome,
 preco:Number(preco)
+
 })
 
 carregarProdutos()
@@ -623,7 +602,7 @@ carregarProdutos()
 
 }
 
-window.listarProdutos=function(){
+window.listarProdutos = function(){
 
 produtosContainer.innerHTML=""
 listaProdutos.innerHTML=""
@@ -648,9 +627,7 @@ R$ ${Number(p.preco).toFixed(2)}
 
 <button class="botao"
 onclick="addProdutoCarrinho(${i})">
-
 Adicionar
-
 </button>
 
 </div>
@@ -665,16 +642,12 @@ ${p.nome}
 
 <button class="botao"
 onclick="editarProduto(${i})">
-
 Editar
-
 </button>
 
 <button class="botao"
 onclick="removerProduto(${i})">
-
 Remover
-
 </button>
 
 </div>
@@ -685,13 +658,18 @@ Remover
 
 }
 
-window.addProdutoCarrinho = async function(i){
+// CARRINHO
+
+window.addProdutoCarrinho =
+async function(i){
 
 let p = produtos[i]
 
-if(p.estoque<=0){
+if(p.estoque <= 0){
+
 alert("Sem estoque")
 return
+
 }
 
 valorTotal += Number(p.preco)
@@ -700,40 +678,59 @@ itens.push(p.nome)
 
 p.estoque--
 
-await update(ref(db,"produtos/"+p.id),{
+await update(
+ref(db,"produtos/"+p.id),
+{
 estoque:p.estoque
-})
+}
+)
 
-atualizar()
+atualizarCarrinho()
 
 listarProdutos()
 
 }
 
-function atualizar(){
+function atualizarCarrinho(){
 
 document.getElementById("total").innerText =
 "R$ " +
 (valorTotal - descontoAplicado).toFixed(2)
 
-itensCarrinho.innerHTML =
+document.getElementById("itensCarrinho").innerHTML =
 itens.join("<br>")
 
 }
 
-window.criarCupomTempo=function(){
+// CUPONS
 
-let nome = novoCupom.value.trim()
-let valor = valorCupom.value
+window.criarCupomTempo = function(){
+
+let nome =
+document.getElementById("novoCupom")
+.value.trim()
+
+let valor =
+Number(
+document.getElementById("valorCupom")
+.value
+)
 
 if(!nome || !valor){
+
 alert("Preencha tudo")
 return
+
 }
 
-let dias = Number(diasCupom.value || 0)
-let horas = Number(horasCupom.value || 0)
-let minutos = Number(minutosCupom.value || 0)
+let dias =
+Number(diasCupom.value || 0)
+
+let horas =
+Number(horasCupom.value || 0)
+
+let minutos =
+Number(minutosCupom.value || 0)
 
 let tempoFinal =
 Date.now() +
@@ -742,9 +739,11 @@ Date.now() +
 (minutos*60000)
 
 cuponsTemporarios.push({
+
 nome,
 valor,
 tempoFinal
+
 })
 
 localStorage.setItem(
@@ -752,7 +751,7 @@ localStorage.setItem(
 JSON.stringify(cuponsTemporarios)
 )
 
-alert("Cupom criado")
+alert("Cupom criado!")
 
 atualizarCupons()
 
@@ -762,17 +761,34 @@ function atualizarCupons(){
 
 listaCupons.innerHTML=""
 
-cuponsTemporarios.forEach((c,index)=>{
+let agora = Date.now()
 
-let tempo = c.tempoFinal - Date.now()
+cuponsTemporarios =
+cuponsTemporarios.filter(c =>
+c.tempoFinal > agora
+)
 
-if(tempo<=0){
-return
-}
+localStorage.setItem(
+"cupons",
+JSON.stringify(cuponsTemporarios)
+)
 
-let dias = Math.floor(tempo/86400000)
-let horas = Math.floor((tempo%86400000)/3600000)
-let minutos = Math.floor((tempo%3600000)/60000)
+cuponsTemporarios.forEach(c=>{
+
+let tempo = c.tempoFinal - agora
+
+let dias =
+Math.floor(tempo/86400000)
+
+let horas =
+Math.floor(
+(tempo%86400000)/3600000
+)
+
+let minutos =
+Math.floor(
+(tempo%3600000)/60000
+)
 
 listaCupons.innerHTML += `
 
@@ -801,47 +817,60 @@ ${c.valor}% OFF
 
 }
 
-setInterval(atualizarCupons,60000)
+setInterval(atualizarCupons,1000)
 
-window.aplicarCupom=function(){
+window.aplicarCupom = function(){
 
-let codigo = cupom.value.trim()
+let codigo =
+document.getElementById("cupom")
+.value
+.trim()
+.toLowerCase()
 
-let cup = cuponsTemporarios.find(c =>
-c.nome.toLowerCase() === codigo.toLowerCase()
+let cup =
+cuponsTemporarios.find(c =>
+c.nome.toLowerCase() === codigo
 )
 
 if(!cup){
+
 alert("Cupom inválido")
 return
+
 }
 
 descontoAplicado =
-valorTotal * (Number(cup.valor)/100)
+valorTotal *
+(Number(cup.valor)/100)
 
-alert("Cupom aplicado")
+alert("Cupom aplicado!")
 
-atualizar()
+atualizarCarrinho()
 
 }
 
-window.abrirEtapa1=function(){
+// ETAPAS
 
-if(valorTotal<=0){
+window.abrirEtapa1 = function(){
+
+if(valorTotal <= 0){
+
 alert("Carrinho vazio")
 return
+
 }
 
 etapa1.style.display="block"
 
 }
 
-window.irParaPagamento=function(){
+window.irParaPagamento = function(){
 
 let valor =
-(valorTotal-descontoAplicado).toFixed(2)
+(valorTotal-descontoAplicado)
+.toFixed(2)
 
-valorFinalPagamento.innerText=valor
+valorFinalPagamento.innerText = valor
 
 qrCodePix.src =
 "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PIX "+valor
@@ -852,10 +881,13 @@ etapa2.style.display="block"
 
 }
 
+// WHATS
+
 window.enviarWhats = async function(){
 
 let valor =
-(valorTotal-descontoAplicado).toFixed(2)
+(valorTotal-descontoAplicado)
+.toFixed(2)
 
 totalVendas++
 
@@ -881,7 +913,9 @@ encodeURIComponent(msg)
 
 }
 
-window.exportarDados=function(){
+// EXPORTAR
+
+window.exportarDados = function(){
 
 let texto = `
 Total vendas: ${totalVendas}
@@ -896,13 +930,15 @@ let a = document.createElement("a")
 
 a.href = URL.createObjectURL(blob)
 
-a.download="vendas.txt"
+a.download = "vendas.txt"
 
 a.click()
 
 }
 
-window.resetarVendas=function(){
+// RESETAR
+
+window.resetarVendas = function(){
 
 totalVendas=0
 valorTotalVendido=0
@@ -910,6 +946,8 @@ valorTotalVendido=0
 document.getElementById("totalVendas").innerText=0
 
 document.getElementById("valorTotalVendido").innerText="0.00"
+
+alert("Vendas resetadas")
 
 }
 
