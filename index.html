@@ -114,6 +114,12 @@ border-radius:20px;
 margin-bottom:15px;
 }
 
+.preco{
+font-size:22px;
+font-weight:bold;
+margin:10px 0;
+}
+
 .botao{
 background:linear-gradient(135deg,#ff1493,#ff69b4);
 color:white;
@@ -123,6 +129,7 @@ border-radius:15px;
 cursor:pointer;
 font-weight:bold;
 margin-top:10px;
+width:100%;
 }
 
 .carrinho,
@@ -140,7 +147,7 @@ text-align:center;
 display:none;
 }
 
-input,select{
+input{
 width:100%;
 padding:12px;
 border-radius:12px;
@@ -165,6 +172,20 @@ box-shadow:0 0 20px rgba(0,0,0,0.15);
 
 .admin-panel.active{
 left:0;
+}
+
+#menuLateral{
+position:fixed;
+right:-100%;
+top:0;
+width:280px;
+height:100%;
+background:white;
+box-shadow:-5px 0 20px rgba(0,0,0,0.15);
+padding:25px;
+transition:0.4s;
+z-index:99999;
+overflow:auto;
 }
 
 footer{
@@ -198,7 +219,11 @@ Entrar
 
 <div id="adminArea" style="display:none;">
 
-<h3>Produtos</h3>
+<button class="botao" onclick="fecharAdmin()">
+Sair do Painel
+</button>
+
+<h3 style="margin-top:20px;">Produtos</h3>
 
 <div id="listaProdutos"></div>
 
@@ -243,6 +268,7 @@ Resetar vendas
 </button>
 
 </div>
+
 </div>
 
 <header>
@@ -355,25 +381,13 @@ Paguei
 
 </div>
 
-<div id="menuLateral" style="
-position:fixed;
-right:-100%;
-top:0;
-width:280px;
-height:100%;
-background:white;
-box-shadow:-5px 0 20px rgba(0,0,0,0.15);
-padding:25px;
-transition:0.4s;
-z-index:99999;
-overflow:auto;
-">
+<div id="menuLateral">
 
 <h2 style="margin-bottom:25px;">
 🌸 Menu
 </h2>
 
-<button class="botao" onclick="toggleAdmin()" style="width:100%;">
+<button class="botao" onclick="toggleAdmin()">
 Painel ADM
 </button>
 
@@ -397,7 +411,7 @@ WhatsApp
 
 <button class="botao"
 onclick="fecharMenu()"
-style="width:100%;margin-top:30px;">
+style="margin-top:30px;">
 Fechar
 </button>
 
@@ -450,14 +464,16 @@ const auth = getAuth(app);
 
 const provider = new GoogleAuthProvider()
 
-let total = 0
+let valorTotal = 0
 let itens = []
 let descontoAplicado = 0
-
 let produtos = []
 
 let totalVendas = 0
 let valorTotalVendido = 0
+
+let cuponsTemporarios =
+JSON.parse(localStorage.getItem("cupons")) || []
 
 window.abrirMenu=function(){
 menuLateral.style.right="0"
@@ -469,6 +485,10 @@ menuLateral.style.right="-100%"
 
 window.toggleAdmin=function(){
 adminPanel.classList.toggle("active")
+}
+
+window.fecharAdmin=function(){
+adminPanel.classList.remove("active")
 }
 
 window.verificarKey=function(){
@@ -490,6 +510,8 @@ erroKey.innerText="Key incorreta"
 
 window.loginGoogle = async function(){
 
+try{
+
 const result = await signInWithPopup(auth,provider)
 
 const user = result.user
@@ -499,6 +521,10 @@ nome:user.displayName,
 email:user.email,
 foto:user.photoURL
 })
+
+}catch(e){
+alert("Erro no login")
+}
 
 }
 
@@ -549,6 +575,14 @@ listarProdutos()
 
 window.criarProduto = async function(){
 
+if(
+!novoProdutoNome.value ||
+!novoProdutoPreco.value
+){
+alert("Preencha tudo")
+return
+}
+
 const novoRef = push(ref(db,"produtos"))
 
 await set(novoRef,{
@@ -558,6 +592,8 @@ estoque:Number(novoProdutoEstoque.value),
 imagem:novoProdutoImagem.value,
 descricao:novoProdutoDescricao.value
 })
+
+alert("Produto criado")
 
 carregarProdutos()
 
@@ -654,18 +690,19 @@ window.addProdutoCarrinho = async function(i){
 let p = produtos[i]
 
 if(p.estoque<=0){
-return alert("Sem estoque")
+alert("Sem estoque")
+return
 }
+
+valorTotal += Number(p.preco)
+
+itens.push(p.nome)
 
 p.estoque--
 
 await update(ref(db,"produtos/"+p.id),{
 estoque:p.estoque
 })
-
-total += Number(p.preco)
-
-itens.push(p.nome)
 
 atualizar()
 
@@ -675,21 +712,24 @@ listarProdutos()
 
 function atualizar(){
 
-total.innerHTML = "R$ " +
-(total - descontoAplicado).toFixed(2)
+document.getElementById("total").innerText =
+"R$ " +
+(valorTotal - descontoAplicado).toFixed(2)
 
 itensCarrinho.innerHTML =
 itens.join("<br>")
 
 }
 
-let cuponsTemporarios =
-JSON.parse(localStorage.getItem("cupons")) || []
-
 window.criarCupomTempo=function(){
 
-let nome = novoCupom.value
+let nome = novoCupom.value.trim()
 let valor = valorCupom.value
+
+if(!nome || !valor){
+alert("Preencha tudo")
+return
+}
 
 let dias = Number(diasCupom.value || 0)
 let horas = Number(horasCupom.value || 0)
@@ -712,6 +752,8 @@ localStorage.setItem(
 JSON.stringify(cuponsTemporarios)
 )
 
+alert("Cupom criado")
+
 atualizarCupons()
 
 }
@@ -720,13 +762,17 @@ function atualizarCupons(){
 
 listaCupons.innerHTML=""
 
-cuponsTemporarios.forEach(c=>{
+cuponsTemporarios.forEach((c,index)=>{
 
 let tempo = c.tempoFinal - Date.now()
 
-if(tempo<=0)return
+if(tempo<=0){
+return
+}
 
 let dias = Math.floor(tempo/86400000)
+let horas = Math.floor((tempo%86400000)/3600000)
+let minutos = Math.floor((tempo%3600000)/60000)
 
 listaCupons.innerHTML += `
 
@@ -745,7 +791,7 @@ ${c.valor}% OFF
 
 <br><br>
 
-⏳ ${dias} dias
+⏳ ${dias}d ${horas}h ${minutos}m
 
 </div>
 
@@ -754,6 +800,8 @@ ${c.valor}% OFF
 })
 
 }
+
+setInterval(atualizarCupons,60000)
 
 window.aplicarCupom=function(){
 
@@ -769,7 +817,9 @@ return
 }
 
 descontoAplicado =
-total * (Number(cup.valor)/100)
+valorTotal * (Number(cup.valor)/100)
+
+alert("Cupom aplicado")
 
 atualizar()
 
@@ -777,8 +827,9 @@ atualizar()
 
 window.abrirEtapa1=function(){
 
-if(total<=0){
-return alert("Carrinho vazio")
+if(valorTotal<=0){
+alert("Carrinho vazio")
+return
 }
 
 etapa1.style.display="block"
@@ -788,7 +839,7 @@ etapa1.style.display="block"
 window.irParaPagamento=function(){
 
 let valor =
-(total-descontoAplicado).toFixed(2)
+(valorTotal-descontoAplicado).toFixed(2)
 
 valorFinalPagamento.innerText=valor
 
@@ -804,7 +855,7 @@ etapa2.style.display="block"
 window.enviarWhats = async function(){
 
 let valor =
-(total-descontoAplicado).toFixed(2)
+(valorTotal-descontoAplicado).toFixed(2)
 
 totalVendas++
 
